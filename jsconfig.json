@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "strict": true,
+    "checkJs": true,
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
+}

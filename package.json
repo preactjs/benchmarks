@@ -1,0 +1,47 @@
+{
+  "name": "preact-benchmarks",
+  "type": "module",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Repository of benchmarks for Preact",
+  "scripts": {
+    "format": "prettier --no-error-on-unmatched-pattern --write **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
+    "lint": "conc npm:lint:*",
+    "lint:format": "prettier --no-error-on-unmatched-pattern --check **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
+    "lint:tsc": "tsc -p jsconfig.json",
+    "lint-staged": "lint-staged",
+    "prepare": "husky install",
+    "tsc": "tsc -p jsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/preactjs/benchmarks.git"
+  },
+  "keywords": [
+    "Preact",
+    "benchmarks",
+    "performance"
+  ],
+  "authors": [
+    "The Preact Authors (https://github.com/preactjs/preact/contributors)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/preactjs/benchmarks/issues"
+  },
+  "homepage": "https://github.com/preactjs/benchmarks#readme",
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "typescript": "^5.3.3"
+  },
+  "volta": {
+    "node": "20.11.0"
+  }
+}
