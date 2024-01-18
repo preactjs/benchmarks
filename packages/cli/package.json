@@ -1,0 +1,34 @@
+{
+  "name": "@preact/benchmarks-cli",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Runner for the Preact benchmark suite",
+  "main": "src/index.js",
+  "bin": {
+    "preact-bench": "./bin/preact-bench.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/preactjs/benchmarks.git"
+  },
+  "keywords": [
+    "Preact",
+    "benchmarks",
+    "cli"
+  ],
+  "authors": [
+    "The Preact Authors (https://github.com/preactjs/preact/contributors)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/preactjs/benchmarks/issues"
+  },
+  "homepage": "https://github.com/preactjs/benchmarks#readme",
+  "dependencies": {
+    "prompts": "^2.4.2",
+    "vite": "^5.0.11"
+  }
+}
