@@ -2,6 +2,12 @@ import { writeFile } from "node:fs/promises";
 import { getAppConfig } from "@preact/benchmark-apps";
 import { getDepConfig } from "@preact/benchmark-deps";
 
+async function getDefaultConfig() {
+	const apps = await getAppConfig();
+	const dependencies = await getDepConfig();
+	return { apps, dependencies };
+}
+
 export async function runBenchmarks() {
 	console.log("Running benchmarks...");
 }

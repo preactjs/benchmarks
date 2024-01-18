@@ -3,75 +3,60 @@
 import prompts from "prompts";
 import { existsSync } from "node:fs";
 import { parseArgs } from "node:util";
+import sade from "sade";
 import { initConfig, runBenchmarks } from "../src/index.js";
 
-async function runInit() {
-	const args = parseArgs({
-		allowPositionals: true,
-		options: {
-			configFile: {
-				type: "string",
-				short: "c",
-				default: "preact-bench.config.js",
-			},
-			preact: {
-				type: "string",
-			},
-			signals: {
-				type: "string",
-			},
-			rts: {
-				type: "string",
-			},
-		},
-	});
+const prog = sade("preact-bench").version("0.0.0");
 
-	const configFile = args.values.configFile;
-	if (configFile && existsSync(configFile)) {
-		const { overwrite } = await prompts({
-			type: "confirm",
-			name: "overwrite",
-			message: `Config file ${args.values.configFile} already exists. Overwrite?`,
-		});
-		if (!overwrite) {
-			console.log("Aborting.");
-			return;
+prog
+	.command("init")
+	.describe("Initialize a config file")
+	.option("--configFile -c", "Path to config file", "preact-bench.config.js")
+	.option("--preact", "Path to local Preact repo")
+	.option("--signals", "Path to local Preact Signals repo")
+	.option("--rts", "Path to local Preact render-to-string repo")
+	.option("--force -f", "Overwrite existing config file", false)
+	.action(async (args) => {
+		/** @type {string} */
+		const configFile = args.configFile;
+		if (args.force == false && existsSync(configFile)) {
+			const { overwrite } = await prompts({
+				type: "confirm",
+				name: "overwrite",
+				message: `Config file "${configFile}" already exists. Overwrite?`,
+			});
+			if (!overwrite) {
+				console.log("Aborting.");
+				return;
+			}
 		}
-	}
 
-	prompts.override(args.values);
-	const options = await prompts([
-		{
-			type: "text",
-			name: "preact",
-			message: "Path to local Preact repo:",
-		},
-		{
-			type: "text",
-			name: "signals",
-			message: "Path to local Preact Signals repo:",
-		},
-		{
-			type: "text",
-			name: "rts",
-			message: "Path to local Preact render-to-string repo:",
-		},
-	]);
+		prompts.override(args);
+		const options = await prompts([
+			{
+				type: "text",
+				name: "preact",
+				message: "Path to local Preact repo:",
+			},
+			{
+				type: "text",
+				name: "signals",
+				message: "Path to local Preact Signals repo:",
+			},
+			{
+				type: "text",
+				name: "rts",
+				message: "Path to local Preact render-to-string repo:",
+			},
+		]);
 
-	await initConfig(args.values.configFile ?? "preact-bench.config.js", {
-		localPreactRepoPath: options.preact || undefined,
-		localSignalRepoPath: options.signals || undefined,
-		localRTSRepoPath: options.rts || undefined,
+		await initConfig(configFile, {
+			localPreactRepoPath: options.preact || undefined,
+			localSignalRepoPath: options.signals || undefined,
+			localRTSRepoPath: options.rts || undefined,
+		});
 	});
-}
 
-async function main() {
-	const command = process.argv[2];
-	if (command === "init") {
-		await runInit();
-	} else {
-		await runBenchmarks();
-	}
-}
+prog.command("bench").describe("Run benchmarks").action(runBenchmarks);
 
-main();
+prog.parse(process.argv);
