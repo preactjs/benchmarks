@@ -1,5 +1,5 @@
 {
-  "name": "@preact/benchmarks-cli",
+  "name": "@preact/benchmark-cli",
   "type": "module",
   "version": "0.0.1",
   "description": "Runner for the Preact benchmark suite",
@@ -28,6 +28,8 @@
   },
   "homepage": "https://github.com/preactjs/benchmarks#readme",
   "dependencies": {
+    "@preact/benchmark-apps": "workspace:^0.0.1",
+    "@preact/benchmark-deps": "workspace:^0.0.1",
     "prompts": "^2.4.2",
     "vite": "^5.0.11"
   }

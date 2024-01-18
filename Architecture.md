@@ -32,6 +32,18 @@
 - Run Vite server in CLI process?
 - Should there be a "build-all" option to build a GH deployable version of all apps? Would probably be difficult as I'd need to build out versions of each implementation for each version that is deployable
 
+## Running in other repos
+
+- Consider exporting a function generate a "dependencies" config from the "@preact/benchmark-deps" package that takes in the paths to the relevant local repos
+- Then in each repo, a "prepare" step in the benches package.json script would run the function and write the config to a file in the benches directory. The local config will be ignored by Git and so can be customized with local file paths.
+
+Or
+
+TODO: Make decision about git submodule or not
+
+- Should I just simplify this and use Git submodules? Which allows local branching and editing? And removes the need for a CLI config since we can assume more things about the repo structure.
+- ??? But how do I configure local repos for Preact & Signals & render-to-string?
+
 ## Vite server
 
 - Middleware maps `impl` parameter to the correct implementation `index.js`:
@@ -47,7 +59,7 @@
 
 ```txt
 - packages/
-	- versions/
+	- dependencies/
 		- preact/
 			- local/
 			- master/
