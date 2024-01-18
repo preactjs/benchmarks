@@ -3,8 +3,11 @@ import { fileURLToPath } from "node:url";
 /** @type {(path: string) => string} */
 const r = (path) => fileURLToPath(import.meta.resolve(path));
 
-/**  @type {() => Promise<CLIConfig["dependencies"]>} */
-export async function getDepConfig() {
+/**
+ * @param {LocalDependenciesConfig} [localConfig]
+ * @returns {Promise<CLIConfig["dependencies"]>}
+ */
+export async function getDepConfig(localConfig) {
 	return {
 		preact: {
 			local: r("./preact/local"),

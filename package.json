@@ -6,6 +6,7 @@
   "description": "Repository of benchmarks for Preact",
   "scripts": {
     "format": "prettier --no-error-on-unmatched-pattern --write **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
+    "init": "node packages/cli/bin/preact-bench.js init",
     "lint": "conc npm:lint:*",
     "lint:format": "prettier --no-error-on-unmatched-pattern --check **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
     "lint:tsc": "tsc -p jsconfig.json",
@@ -36,6 +37,9 @@
     ]
   },
   "devDependencies": {
+    "@preact/benchmark-apps": "workspace:^0.0.1",
+    "@preact/benchmark-cli": "workspace:^0.0.1",
+    "@preact/benchmark-deps": "workspace:^0.0.1",
     "concurrently": "^8.2.2",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",

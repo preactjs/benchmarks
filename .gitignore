@@ -1,3 +1,7 @@
+# Project-specific ignores
+preact-bench.config.js
+
+
 # Logs
 logs
 *.log
