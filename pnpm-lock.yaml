@@ -42,6 +42,12 @@ importers:
       "@preact/benchmark-deps":
         specifier: workspace:^0.0.1
         version: link:../dependencies
+      afterframe:
+        specifier: ^1.0.2
+        version: 1.0.2
+      preact:
+        specifier: ^10.19.3
+        version: 10.19.3
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -512,6 +518,13 @@ packages:
       "@types/node": 20.11.5
       kleur: 3.0.3
     dev: true
+
+  /afterframe@1.0.2:
+    resolution:
+      {
+        integrity: sha512-0JeMZI7dIfVs5guqLgidQNV7c6jBC2HO0QNSekAUB82Hr7PdU9QXNAF3kpFkvATvHYDDTGto7FPsRu1ey+aKJQ==,
+      }
+    dev: false
 
   /ansi-escapes@6.2.0:
     resolution:
@@ -1118,6 +1131,13 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
+    dev: false
+
+  /preact@10.19.3:
+    resolution:
+      {
+        integrity: sha512-nHHTeFVBTHRGxJXKkKu5hT8C/YWBkPso4/Gad6xuj5dbptt9iF9NZr9pHbPhBrnT2klheu7mHTxTZ/LjwJiEiQ==,
+      }
     dev: false
 
   /prompts@2.4.2:

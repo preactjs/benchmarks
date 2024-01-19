@@ -2,9 +2,8 @@
 
 import prompts from "prompts";
 import { existsSync } from "node:fs";
-import { parseArgs } from "node:util";
 import sade from "sade";
-import { initConfig, runBenchmarks } from "../src/index.js";
+import { initConfig, runBenchmarks, runDevServer } from "../src/index.js";
 
 const prog = sade("preact-bench").version("0.0.0");
 
@@ -36,17 +35,17 @@ prog
 			{
 				type: "text",
 				name: "preact",
-				message: "Path to local Preact repo:",
+				message: "Path to local Preact repo (optional):",
 			},
 			{
 				type: "text",
 				name: "signals",
-				message: "Path to local Preact Signals repo:",
+				message: "Path to local Preact Signals repo (optional):",
 			},
 			{
 				type: "text",
 				name: "rts",
-				message: "Path to local Preact render-to-string repo:",
+				message: "Path to local Preact render-to-string repo (optional):",
 			},
 		]);
 
@@ -58,5 +57,7 @@ prog
 	});
 
 prog.command("bench").describe("Run benchmarks").action(runBenchmarks);
+
+prog.command("dev").describe("Run dev server").action(runDevServer);
 
 prog.parse(process.argv);
