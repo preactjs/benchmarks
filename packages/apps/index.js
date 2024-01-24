@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 /** @type {(path: string) => string} */
 const r = (path) => fileURLToPath(import.meta.resolve(path));
 
-/** @type {() => Promise<CLIConfig["apps"]>} */
+/** @type {() => Promise<RootConfig["apps"]>} */
 export async function getAppConfig() {
 	return {
 		"table-app": {

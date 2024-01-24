@@ -1,4 +1,4 @@
-/** @type {(cliConfig: CLIConfig) => import('vite').Plugin} */
+/** @type {(cliConfig: RootConfig) => import('vite').Plugin} */
 export function configPlugin(cliConfig) {
 	return {
 		name: "preact-benchmark:config",

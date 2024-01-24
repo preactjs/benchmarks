@@ -1,10 +1,11 @@
-interface Dependency {
+interface DependencyConfig {
 	path: string;
 	setup?: string;
 	teardown?: string;
 }
 
-interface BenchmarkApp {
+interface BenchmarkAppConfig {
+	/** Used to explicitly add additional benchmarks from outside of the mount path */
 	benchmarks: {
 		[benchId: string]: string;
 	};
@@ -13,14 +14,14 @@ interface BenchmarkApp {
 	};
 }
 
-interface CLIConfig {
+interface RootConfig {
 	// TODO: What to do about signals which are multiple packages from one repo?
 	dependencies: {
 		[importSpecifier: string]: {
-			[versionId: string]: string | Dependency;
+			[versionId: string]: string | DependencyConfig;
 		};
 	};
 	apps: {
-		[appId: string]: BenchmarkApp;
+		[appId: string]: BenchmarkAppConfig;
 	};
 }

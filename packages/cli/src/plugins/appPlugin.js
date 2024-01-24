@@ -20,7 +20,7 @@ const pattern = new URLPattern({
 	pathname: "/:appName?/:benchmarkName?",
 });
 
-/** @type {Middleware<CLIConfig>} */
+/** @type {Middleware<RootConfig>} */
 const appMiddleware = (config) => async (req, res, next) => {
 	if (!req.url) return next();
 
@@ -30,7 +30,7 @@ const appMiddleware = (config) => async (req, res, next) => {
 	const { appName, benchmarkName } = params;
 	const appConfig = appName && config.apps[appName];
 	const benchmarkConfig =
-		benchmarkName && appConfig && appConfig.benchmarks[benchmarkName];
+		benchmarkName && appConfig && appConfig.benchmarks?.[benchmarkName];
 
 	if (!appConfig || !benchmarkConfig || !fs.existsSync(benchmarkConfig)) {
 		return next();
@@ -42,7 +42,7 @@ const appMiddleware = (config) => async (req, res, next) => {
 	res.end(await readFile(benchmarkConfig));
 };
 
-/** @type {Middleware<CLIConfig>} */
+/** @type {Middleware<RootConfig>} */
 const appNotFoundMiddleware = (config) => (req, res, next) => {
 	/** @type {(text: string) => void} */
 	const sendResponse = (missingText) => {
@@ -76,7 +76,7 @@ const appNotFoundMiddleware = (config) => (req, res, next) => {
 	}
 
 	const benchmarkConfig =
-		benchmarkName && appConfig && appConfig.benchmarks[benchmarkName];
+		benchmarkName && appConfig && appConfig.benchmarks?.[benchmarkName];
 	if (!benchmarkConfig) {
 		return sendResponse(`Benchmark not found: ${benchmarkName}`);
 	}
@@ -88,7 +88,7 @@ const appNotFoundMiddleware = (config) => (req, res, next) => {
 	return sendResponse("Unknown error");
 };
 
-/** @type {(config: CLIConfig) => import('vite').Plugin} */
+/** @type {(config: RootConfig) => import('vite').Plugin} */
 export function appPlugin(config) {
 	return {
 		name: "preact-benchmark:app",

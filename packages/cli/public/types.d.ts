@@ -14,4 +14,4 @@ interface Performance {
 	memory?: PerformanceMemory;
 }
 
-interface BenchmarkURLConfig extends CLIConfig {}
+interface BenchmarkURLConfig extends RootConfig {}

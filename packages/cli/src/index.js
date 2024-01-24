@@ -37,7 +37,7 @@ export async function runBenchmarks() {
 	console.log("Running benchmarks...");
 }
 
-/** @type {(config: CLIConfig | Promise<CLIConfig> | (() => CLIConfig | Promise<CLIConfig>)) => Promise<CLIConfig>} */
+/** @type {(config: RootConfig | Promise<RootConfig> | (() => RootConfig | Promise<RootConfig>)) => Promise<RootConfig>} */
 export async function defineConfig(config) {
 	return typeof config === "function" ? config() : config;
 }
