@@ -21,7 +21,7 @@ function BenchmarkSelector() {
 	);
 	const [selectedImpl, setSelectedImpl] = useState(implementations[0]);
 	return (
-		<form action={`/${selectedApp}/${selectedBenchmark}`} method="get">
+		<form action={`/app/${selectedApp}/${selectedBenchmark}`} method="get">
 			<div>
 				<label for="app-selector">Select a benchmarking app</label>
 				<select

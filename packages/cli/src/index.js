@@ -4,6 +4,7 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
+import { appPlugin } from "./plugins/appPlugin.js";
 import { configPlugin } from "./plugins/configPlugin.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,15 +17,15 @@ async function getDefaultConfig() {
 	return { apps, dependencies };
 }
 
-console.log(p("../public"));
-import("fs").then((fs) => console.log(fs.readdirSync(p("../public"))));
-
+/** @type {() => Promise<void>} */
 export async function runDevServer() {
+	const config = await getDefaultConfig();
+
 	const server = await createServer({
-		// any valid user config options, plus `mode` and `configFile`
 		configFile: false,
 		root: p("../public"),
-		plugins: [configPlugin(await getDefaultConfig())],
+		plugins: [configPlugin(await getDefaultConfig()), appPlugin(config)],
+		appType: "mpa",
 	});
 	await server.listen();
 
