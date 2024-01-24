@@ -5,6 +5,8 @@ interface DependencyConfig {
 }
 
 interface BenchmarkAppConfig {
+	/** The path to the app directory that contains benchmark HTML files and implementation folders */
+	mountPath?: string;
 	/** Used to explicitly add additional benchmarks from outside of the mount path */
 	benchmarks: {
 		[benchId: string]: string;

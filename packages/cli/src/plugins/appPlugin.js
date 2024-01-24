@@ -1,18 +1,10 @@
 import fs from "node:fs";
 import { readFile } from "node:fs/promises";
+import { send } from "vite";
 import { URLPattern } from "urlpattern-polyfill";
 
 /**
- * @typedef {{ a: T }} Test
- * @template T
- */
-
-/**
- * @typedef {() => () => void} Test2
- */
-
-/**
- * @typedef {(config: Config) => import('vite').Connect.NextHandleFunction} Middleware
+ * @typedef {(server: import('vite').ViteDevServer, config: Config) => import('vite').Connect.NextHandleFunction} Middleware
  * @template Config
  */
 
@@ -21,7 +13,7 @@ const pattern = new URLPattern({
 });
 
 /** @type {Middleware<RootConfig>} */
-const appMiddleware = (config) => async (req, res, next) => {
+const appMiddleware = (server, config) => async (req, res, next) => {
 	if (!req.url) return next();
 
 	const fullUrl = new URL(req.url, "http://" + req.headers.host);
@@ -36,18 +28,18 @@ const appMiddleware = (config) => async (req, res, next) => {
 		return next();
 	}
 
-	res.writeHead(200, {
-		"Content-Type": "text/html",
+	return send(req, res, await readFile(benchmarkConfig), "html", {
+		headers: server.config.server.headers,
 	});
-	res.end(await readFile(benchmarkConfig));
 };
 
 /** @type {Middleware<RootConfig>} */
-const appNotFoundMiddleware = (config) => (req, res, next) => {
+const appNotFoundMiddleware = (server, config) => (req, res, next) => {
 	/** @type {(text: string) => void} */
 	const sendResponse = (missingText) => {
 		const body = `<html><body><h1>404 - Not Found</h1><p>${missingText}</p><p>Try navigating <a href="/">back home</a> and trying again.</p></body></html>`;
 		res.writeHead(404, {
+			...server.config.server.headers,
 			"Content-Type": "text/html",
 			"Content-Length": Buffer.byteLength(body),
 		});
@@ -93,9 +85,9 @@ export function appPlugin(config) {
 	return {
 		name: "preact-benchmark:app",
 		configureServer(server) {
-			server.middlewares.use("/app/", appMiddleware(config));
+			server.middlewares.use("/app/", appMiddleware(server, config));
 			return () =>
-				server.middlewares.use("/app/", appNotFoundMiddleware(config));
+				server.middlewares.use("/app/", appNotFoundMiddleware(server, config));
 		},
 	};
 }
