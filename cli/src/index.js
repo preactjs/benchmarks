@@ -1,17 +1,12 @@
 import { writeFile } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
 import { rootIndexPlugin } from "./plugins/rootIndexPlugin.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-/** @type {(...args: string[]) => string} */
-const p = (...args) => path.join(__dirname, ...args);
+import { repoRoot } from "./utils.js";
 
 /** @type {() => Promise<void>} */
 export async function runDevServer() {
 	const server = await createServer({
-		root: p("../../"),
+		root: repoRoot(),
 		configFile: false,
 		appType: "mpa",
 		plugins: [rootIndexPlugin()],
