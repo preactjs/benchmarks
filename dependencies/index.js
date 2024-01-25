@@ -4,10 +4,9 @@ import { fileURLToPath } from "node:url";
 const r = (path) => fileURLToPath(import.meta.resolve(path));
 
 /**
- * @param {LocalDependenciesConfig} [localConfig]
  * @returns {Promise<RootConfig["dependencies"]>}
  */
-export async function getDepConfig(localConfig) {
+export async function getDepConfig() {
 	// TODO: Use importmaps to override dependencies specified in request.
 	return {
 		preact: {
