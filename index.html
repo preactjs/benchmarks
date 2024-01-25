@@ -10,6 +10,99 @@
 		<script type="text/javascript">
 			window.configData = JSON.parse(`__CONFIG_DATA__`);
 		</script>
-		<script type="module" src="cli/public/index.jsx"></script>
+		<script type="module">
+			import { h, Fragment, render } from "preact";
+			import { useId, useState } from "preact/hooks";
+
+			/**
+			 * @param {{label: string; options: string[]; value: string; onInput: preact.JSX.InputEventHandler<HTMLSelectElement>}} props
+			 * @returns {JSX.Element}
+			 */
+			function Select({ label, options, value, onInput }) {
+				const id = useId();
+
+				return h("div", null, [
+					h("label", { for: id }, label),
+					h(
+						"select",
+						{ id, value, onInput },
+						options.map((option) => h("option", { value: option }, option))
+					),
+				]);
+			}
+
+			/** @type {(props: { config: RootConfig }) => preact.JSX.Element} */
+			function BenchmarkSelector({ config }) {
+				const apps = Object.entries(config.apps);
+				const [selectedApp, setSelectedApp] = useState(apps[0][0]);
+
+				const benchmarks = Object.keys(config.apps[selectedApp].benchmarks);
+				const [selectedBenchmark, setSelectedBenchmark] = useState(
+					benchmarks[0]
+				);
+
+				const implementations = Object.keys(
+					config.apps[selectedApp].implementations
+				);
+				const [selectedImpl, setSelectedImpl] = useState(implementations[0]);
+				return h(
+					"form",
+					{
+						action: `/apps/${selectedApp}/${selectedBenchmark}`,
+						method: "get",
+					},
+					[
+						h(Select, {
+							label: "Select a benchmarking app",
+							options: apps.map(([appName]) => appName),
+							value: selectedApp,
+							onInput: (e) => {
+								const newApp = e.currentTarget.value;
+								setSelectedApp(newApp);
+								setSelectedBenchmark(
+									Object.keys(config.apps[newApp].benchmarks)[0]
+								);
+								setSelectedImpl(
+									Object.keys(config.apps[newApp].implementations)[0]
+								);
+							},
+						}),
+						h(Select, {
+							label: "Select a benchmark",
+							options: benchmarks,
+							value: selectedBenchmark,
+							onInput: (e) => {
+								setSelectedBenchmark(e.currentTarget.value);
+							},
+						}),
+						h(Select, {
+							label: "Select an implementation",
+							options: implementations,
+							value: selectedImpl,
+							onInput: (e) => {
+								setSelectedImpl(e.currentTarget.value);
+							},
+						}),
+						h("div", null, [h("button", { type: "submit" }, "Load benchmark")]),
+					]
+				);
+			}
+
+			/** @type {(props: { config: RootConfig }) => preact.JSX.Element} */
+			function App({ config }) {
+				return h(Fragment, null, [
+					h("h1", null, "Preact Benchmarks"),
+					h(BenchmarkSelector, { config }),
+				]);
+			}
+
+			const config = window.configData;
+			const root = document.getElementById("root");
+
+			if (!config) throw new Error(`Missing configData`);
+			if (!root) throw new Error('Missing element with id "root"');
+
+			render(h(App, { config }), root);
+		</script>
 	</body>
 </html>
