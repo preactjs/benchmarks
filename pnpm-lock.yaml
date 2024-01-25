@@ -9,13 +9,13 @@ importers:
     devDependencies:
       "@preact/benchmark-apps":
         specifier: workspace:^0.0.1
-        version: link:packages/apps
+        version: link:apps
       "@preact/benchmark-cli":
         specifier: workspace:^0.0.1
-        version: link:packages/cli
+        version: link:cli
       "@preact/benchmark-deps":
         specifier: workspace:^0.0.1
-        version: link:packages/dependencies
+        version: link:dependencies
       "@types/node":
         specifier: ^20.11.5
         version: 20.11.5
@@ -32,9 +32,9 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
 
-  packages/apps: {}
+  apps: {}
 
-  packages/cli:
+  cli:
     dependencies:
       "@preact/benchmark-apps":
         specifier: workspace:^0.0.1
@@ -65,7 +65,7 @@ importers:
         specifier: ^2.4.9
         version: 2.4.9
 
-  packages/dependencies: {}
+  dependencies: {}
 
 packages:
   /@babel/runtime@7.23.8:
