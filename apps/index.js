@@ -1,3 +1,8 @@
+// To test:
+// - Changing app updates benchmarks & implementations
+// - Changing app or benchmark updates form action
+// - Form state is saved & restored after submitting
+
 const config = /** @type {RootConfig} */ (window.configData);
 if (!config) throw new Error("Missing config data");
 
@@ -17,13 +22,32 @@ const depGroup = /** @type {HTMLDivElement} */ (
 	document.getElementById("dependencies")
 );
 
+const storageKey = "previousConfig";
+const initialConfig = readSavedFormValues();
 const state = {
-	app: "",
-	benchmark: "",
-	impl: "",
+	app: initialConfig.get("app") ?? "",
+	benchmark: initialConfig.get("benchmark") ?? "",
+	impl: initialConfig.get("impl") ?? "",
 };
 
 mount();
+
+function getCurrentFormValues() {
+	const formData = new FormData(form);
+	formData.set("app", appSelect.value);
+	formData.set("benchmark", benchmarkSelect.value);
+	// @ts-expect-error DOM types are wrong
+	return new URLSearchParams(formData);
+}
+
+function saveFormValues() {
+	const values = getCurrentFormValues();
+	sessionStorage.setItem(storageKey, values.toString());
+}
+
+function readSavedFormValues() {
+	return new URLSearchParams(sessionStorage.getItem(storageKey) ?? "");
+}
 
 function mount() {
 	// Add app options
@@ -33,6 +57,7 @@ function mount() {
 		const option = document.createElement("option");
 		option.value = app;
 		option.textContent = app;
+		option.selected = app === state.app;
 		appSelect.appendChild(option);
 	}
 
@@ -53,6 +78,7 @@ function mount() {
 			const option = document.createElement("option");
 			option.value = version;
 			option.textContent = version;
+			option.selected = version === initialConfig.get(dep);
 			select.appendChild(option);
 		}
 
@@ -60,10 +86,14 @@ function mount() {
 		depGroup.appendChild(select);
 	}
 
+	// Add listeners
 	appSelect.addEventListener("input", rerender);
 	benchmarkSelect.addEventListener("input", rerender);
+	form.addEventListener("submit", saveFormValues);
 
-	rerender();
+	// Mount dependent select boxes
+	rerenderBenchmarks();
+	form.action = `/apps/${appSelect.value}/${benchmarkSelect.value}`;
 }
 
 function rerender() {
@@ -72,9 +102,7 @@ function rerender() {
 	if (newApp !== state.app) {
 		rerenderBenchmarks();
 		state.app = newApp;
-	}
-
-	if (newBenchmark !== state.benchmark) {
+	} else if (newBenchmark !== state.benchmark) {
 		rerenderImplementations();
 		state.benchmark = newBenchmark;
 	}
