@@ -1,31 +1,20 @@
-import { getAppConfig } from "@preact/benchmark-apps";
-import { getDepConfig } from "@preact/benchmark-deps";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
-import { appPlugin } from "./plugins/appPlugin.js";
-import { configPlugin } from "./plugins/configPlugin.js";
+import { rootIndexPlugin } from "./plugins/rootIndexPlugin.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {(...args: string[]) => string} */
 const p = (...args) => path.join(__dirname, ...args);
 
-async function getDefaultConfig() {
-	const apps = await getAppConfig();
-	const dependencies = await getDepConfig();
-	return { apps, dependencies };
-}
-
 /** @type {() => Promise<void>} */
 export async function runDevServer() {
-	const config = await getDefaultConfig();
-
 	const server = await createServer({
+		root: p("../../"),
 		configFile: false,
-		root: p("../public"),
-		plugins: [configPlugin(await getDefaultConfig()), appPlugin(config)],
 		appType: "mpa",
+		plugins: [rootIndexPlugin()],
 	});
 	await server.listen();
 

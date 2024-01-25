@@ -4,24 +4,18 @@ import { useState } from "preact/hooks";
 /** @jsx createElement */
 /** @jsxFrag Fragment */
 
-function BenchmarkSelector() {
-	const configData = window.configData;
-	if (!configData) {
-		throw new Error(`Missing configData`);
-	}
-
-	const apps = Object.entries(configData.apps);
+/** @type {(props: { config: RootConfig }) => preact.JSX.Element} */
+function BenchmarkSelector({ config }) {
+	const apps = Object.entries(config.apps);
 	const [selectedApp, setSelectedApp] = useState(apps[0][0]);
 
-	const benchmarks = Object.keys(configData.apps[selectedApp].benchmarks);
+	const benchmarks = Object.keys(config.apps[selectedApp].benchmarks);
 	const [selectedBenchmark, setSelectedBenchmark] = useState(benchmarks[0]);
 
-	const implementations = Object.keys(
-		configData.apps[selectedApp].implementations
-	);
+	const implementations = Object.keys(config.apps[selectedApp].implementations);
 	const [selectedImpl, setSelectedImpl] = useState(implementations[0]);
 	return (
-		<form action={`/app/${selectedApp}/${selectedBenchmark}`} method="get">
+		<form action={`/apps/${selectedApp}/${selectedBenchmark}`} method="get">
 			<div>
 				<label for="app-selector">Select a benchmarking app</label>
 				<select
@@ -31,10 +25,10 @@ function BenchmarkSelector() {
 						const newApp = e.currentTarget.value;
 						setSelectedApp(newApp);
 						setSelectedBenchmark(
-							Object.keys(configData.apps[newApp].benchmarks)[0]
+							Object.keys(config.apps[newApp].benchmarks)[0]
 						);
 						setSelectedImpl(
-							Object.keys(configData.apps[newApp].implementations)[0]
+							Object.keys(config.apps[newApp].implementations)[0]
 						);
 					}}
 				>
@@ -52,7 +46,7 @@ function BenchmarkSelector() {
 						setSelectedBenchmark(e.currentTarget.value);
 					}}
 				>
-					{Object.keys(configData.apps[selectedApp].benchmarks).map(
+					{Object.keys(config.apps[selectedApp].benchmarks).map(
 						(benchmarkName) => (
 							<option value={benchmarkName}>{benchmarkName}</option>
 						)
@@ -81,15 +75,22 @@ function BenchmarkSelector() {
 	);
 }
 
-function App() {
+/** @type {(props: { config: RootConfig }) => preact.JSX.Element} */
+function App({ config }) {
 	return (
 		<>
 			<h1>Preact Benchmarks</h1>
-			<BenchmarkSelector />
+			<BenchmarkSelector config={config} />
 		</>
 	);
 }
 
-const root = document.getElementById("root");
-if (!root) throw new Error('Missing element with id "root"');
-render(<App />, root);
+if (typeof window !== "undefined") {
+	const config = window.configData;
+	const root = document.getElementById("root");
+
+	if (!config) throw new Error(`Missing configData`);
+	if (!root) throw new Error('Missing element with id "root"');
+
+	render(<App config={config} />, root);
+}

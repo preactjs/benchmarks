@@ -30,7 +30,6 @@
   "dependencies": {
     "@preact/benchmark-apps": "workspace:^0.0.1",
     "@preact/benchmark-deps": "workspace:^0.0.1",
-    "afterframe": "^1.0.2",
     "preact": "^10.19.3",
     "prompts": "^2.4.2",
     "sade": "^1.8.1",

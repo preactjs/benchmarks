@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/preactjs/benchmarks/issues"
   },
-  "homepage": "https://github.com/preactjs/benchmarks#readme"
+  "homepage": "https://github.com/preactjs/benchmarks#readme",
+  "dependencies": {
+    "afterframe": "^1.0.2"
+  }
 }

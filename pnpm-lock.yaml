@@ -32,7 +32,11 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
 
-  apps: {}
+  apps:
+    dependencies:
+      afterframe:
+        specifier: ^1.0.2
+        version: 1.0.2
 
   cli:
     dependencies:
@@ -42,9 +46,6 @@ importers:
       "@preact/benchmark-deps":
         specifier: workspace:^0.0.1
         version: link:../dependencies
-      afterframe:
-        specifier: ^1.0.2
-        version: 1.0.2
       preact:
         specifier: ^10.19.3
         version: 10.19.3
