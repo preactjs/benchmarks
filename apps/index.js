@@ -13,6 +13,9 @@ const benchmarkSelect = /** @type {HTMLSelectElement} */ (
 const implSelect = /** @type {HTMLSelectElement} */ (
 	document.getElementById("impl-select")
 );
+const depGroup = /** @type {HTMLDivElement} */ (
+	document.getElementById("dependencies")
+);
 
 const state = {
 	app: "",
@@ -20,7 +23,10 @@ const state = {
 	impl: "",
 };
 
+mount();
+
 function mount() {
+	// Add app options
 	const apps = Object.keys(config.apps);
 	appSelect.innerHTML = "";
 	for (let app of apps) {
@@ -28,6 +34,30 @@ function mount() {
 		option.value = app;
 		option.textContent = app;
 		appSelect.appendChild(option);
+	}
+
+	// Create dependency select elements
+	const dependencies = Object.keys(config.dependencies);
+	depGroup.innerHTML = "";
+
+	for (let dep of dependencies) {
+		const depId = `${dep}-version`;
+		const label = document.createElement("label");
+		label.textContent = `${dep} version: `;
+		label.htmlFor = depId;
+		const select = document.createElement("select");
+		select.id = depId;
+		select.name = dep;
+
+		for (let version of Object.keys(config.dependencies[dep])) {
+			const option = document.createElement("option");
+			option.value = version;
+			option.textContent = version;
+			select.appendChild(option);
+		}
+
+		depGroup.appendChild(label);
+		depGroup.appendChild(select);
 	}
 
 	appSelect.addEventListener("input", rerender);
@@ -87,5 +117,3 @@ function rerenderImplementations() {
 		? state.impl
 		: implementations[0];
 }
-
-mount();

@@ -8,6 +8,7 @@
 	<body>
 		<h1>Preact Benchmarks</h1>
 		<form id="benchmark-form" action="" method="get">
+			<h2>Select benchmark</h2>
 			<div class="form-group">
 				<label for="app-select">Select a benchmarking app:</label>
 				<select id="app-select"></select>
@@ -24,6 +25,11 @@
 				>
 				<select id="impl-select" name="impl" class="form-select"></select>
 			</div>
+
+			<h2>Override dependency versions</h2>
+			<div id="dependencies"></div>
+
+			<br />
 			<div class="form-group">
 				<button type="submit" class="btn btn-primary">Load benchmark</button>
 			</div>
