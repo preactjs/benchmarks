@@ -22,7 +22,7 @@
 				const id = useId();
 
 				return h("div", null, [
-					h("label", { for: id }, label),
+					h("label", { for: id }, label, " "),
 					h(
 						"select",
 						{ id, value, onInput },
@@ -53,7 +53,7 @@
 					},
 					[
 						h(Select, {
-							label: "Select a benchmarking app",
+							label: "Select a benchmarking app:",
 							options: apps.map(([appName]) => appName),
 							value: selectedApp,
 							onInput: (e) => {
@@ -68,7 +68,7 @@
 							},
 						}),
 						h(Select, {
-							label: "Select a benchmark",
+							label: "Select a benchmark:",
 							options: benchmarks,
 							value: selectedBenchmark,
 							onInput: (e) => {
@@ -76,7 +76,7 @@
 							},
 						}),
 						h(Select, {
-							label: "Select an implementation",
+							label: "Select an implementation:",
 							options: implementations,
 							value: selectedImpl,
 							onInput: (e) => {
