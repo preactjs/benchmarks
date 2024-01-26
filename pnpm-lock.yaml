@@ -70,25 +70,14 @@ importers:
         specifier: ^2.4.9
         version: 2.4.9
 
-  dependencies: {}
-
-  dependencies/@preact/signals/latest:
+  dependencies:
     dependencies:
-      "@preact/signals":
-        specifier: ^1.2.2
-        version: 1.2.2(preact@10.19.3)
-
-  dependencies/preact/latest:
-    dependencies:
-      preact:
-        specifier: ^10.19.3
-        version: 10.19.3
-
-  dependencies/preact/v8:
-    dependencies:
-      preact:
-        specifier: ^8.5.3
-        version: 8.5.3
+      preact-latest:
+        specifier: npm:preact@^10.0.0
+        version: /preact@10.19.3
+      preact-v8:
+        specifier: npm:preact@^8.5.2
+        version: /preact@8.5.3
 
 packages:
   /@babel/runtime@7.23.8:
@@ -376,25 +365,6 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
-
-  /@preact/signals-core@1.5.1:
-    resolution:
-      {
-        integrity: sha512-dE6f+WCX5ZUDwXzUIWNMhhglmuLpqJhuy3X3xHrhZYI0Hm2LyQwOu0l9mdPiWrVNsE+Q7txOnJPgtIqHCYoBVA==,
-      }
-    dev: false
-
-  /@preact/signals@1.2.2(preact@10.19.3):
-    resolution:
-      {
-        integrity: sha512-ColCqdo4cRP18bAuIR4Oik5rDpiyFtPIJIygaYPMEAwTnl4buWkBOflGBSzhYyPyJfKpkwlekrvK+1pzQ2ldWw==,
-      }
-    peerDependencies:
-      preact: 10.x
-    dependencies:
-      "@preact/signals-core": 1.5.1
-      preact: 10.19.3
-    dev: false
 
   /@rollup/rollup-android-arm-eabi@4.9.5:
     resolution:

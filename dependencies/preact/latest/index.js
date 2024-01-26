@@ -1,6 +1,6 @@
-import { render, hydrate } from "preact";
+import { render, hydrate } from "preact-latest";
 
-export * from "preact";
+export * from "preact-latest";
 
 /**
  * @param {HTMLElement} rootDom

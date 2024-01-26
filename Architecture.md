@@ -10,8 +10,6 @@
 > Perhaps we should just align to the latest API of the library and everything
 > else must conform to that API if possible.
 
-> TODO: Could we use `npm:` dependency aliases for different dependency versions?
-
 ## Decisions
 
 - Q: Use Tach's web server or Vite

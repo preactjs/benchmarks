@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/preactjs/benchmarks/issues"
   },
-  "homepage": "https://github.com/preactjs/benchmarks#readme"
+  "homepage": "https://github.com/preactjs/benchmarks#readme",
+  "dependencies": {
+    "preact-v8": "npm:preact@^8.5.2",
+    "preact-latest": "npm:preact@^10.0.0"
+  }
 }
