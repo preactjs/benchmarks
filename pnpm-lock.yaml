@@ -53,6 +53,9 @@ importers:
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
+      resolve.exports:
+        specifier: ^2.0.2
+        version: 2.0.2
       sade:
         specifier: ^1.8.1
         version: 1.8.1
@@ -78,6 +81,12 @@ importers:
       preact-v8:
         specifier: npm:preact@^8.5.2
         version: /preact@8.5.3
+
+  dependencies/preact/latest:
+    dependencies:
+      preact:
+        specifier: latest
+        version: 10.19.3
 
 packages:
   /@babel/runtime@7.23.8:
@@ -1195,6 +1204,14 @@ packages:
       }
     engines: { node: ">=0.10.0" }
     dev: true
+
+  /resolve.exports@2.0.2:
+    resolution:
+      {
+        integrity: sha512-X2UW6Nw3n/aMgDVy+0rSqgHlv39WZAlZrXCdnbyEiKm17DSqHX4MmQMaST3FbeWR5FTuRcUwYAziZajji0Y7mg==,
+      }
+    engines: { node: ">=10" }
+    dev: false
 
   /restore-cursor@4.0.0:
     resolution:

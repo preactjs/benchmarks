@@ -1,4 +1,4 @@
 packages:
   - apps
   - cli
-  - dependencies
+  - dependencies/**
