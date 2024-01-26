@@ -2,6 +2,7 @@
 // - Changing app updates benchmarks & implementations
 // - Changing app or benchmark updates form action
 // - Form state is saved & restored after submitting
+// - From submissions creates expected URL
 
 const config = /** @type {RootConfig} */ (window.configData);
 if (!config) throw new Error("Missing config data");
@@ -72,7 +73,7 @@ function mount() {
 		label.htmlFor = depId;
 		const select = document.createElement("select");
 		select.id = depId;
-		select.name = dep;
+		select.name = `dep-${dep}`;
 
 		for (let version of Object.keys(config.dependencies[dep])) {
 			const option = document.createElement("option");

@@ -5,8 +5,6 @@
     "strict": true,
     "checkJs": true,
     "moduleResolution": "node",
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     // Prevent this jsconfig.json to be used to type-check files. Subfolders

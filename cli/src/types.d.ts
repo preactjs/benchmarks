@@ -27,3 +27,14 @@ interface RootConfig {
 		[appId: string]: BenchmarkAppConfig;
 	};
 }
+
+interface ImportMap {
+	imports: {
+		[importSpecifier: string]: string;
+	};
+	scopes?: {
+		[scopePrefix: string]: {
+			[importSpecifier: string]: string;
+		};
+	};
+}

@@ -1,5 +1,7 @@
 # Architecture
 
+TODO: Add note about how preact/@preact/signals dependencies installed in `apps` are just for typings and not used at runtime.
+
 ## Decisions
 
 - Q: Use Tach's web server or Vite

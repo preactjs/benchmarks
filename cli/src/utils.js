@@ -1,6 +1,37 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {(...args: string[]) => string} */
-export const repoRoot = (...args) => path.join(__dirname, "../..", ...args);
+export const repoRoot = (...args) =>
+	path.join(import.meta.dirname, "../..", ...args);
+
+/** @type {(...args: string[]) => string} */
+export const appFilePath = (...args) => repoRoot("apps", ...args);
+/** @type {(...args: string[]) => string} */
+export const depFilePath = (...args) => repoRoot("dependencies", ...args);
+
+/** @type {(...args: string[]) => string} */
+export const appUrl = (...args) =>
+	path.posix.join(
+		toURLPath(appFilePath(...args)),
+		...args.map(encodeURIComponent)
+	);
+
+/** @type {(...args: string[]) => string} */
+export const depUrl = (...args) =>
+	path.posix.join(
+		toURLPath(depFilePath(...args)),
+		...args.map(encodeURIComponent)
+	);
+
+/** @type {(filePath: string) => string} */
+export function toURLPath(filePath) {
+	if (path.isAbsolute(filePath)) {
+		if (!filePath.startsWith(repoRoot())) {
+			throw new Error(`Cannot convert absolute path to URL path: ${filePath}`);
+		}
+
+		filePath = filePath.replace(repoRoot(), "");
+	}
+
+	return new URL(filePath.replace(/\\/g, "/"), "https://localhost/").pathname;
+}

@@ -72,6 +72,24 @@ importers:
 
   dependencies: {}
 
+  dependencies/@preact/signals/latest:
+    dependencies:
+      "@preact/signals":
+        specifier: ^1.2.2
+        version: 1.2.2(preact@10.19.3)
+
+  dependencies/preact/latest:
+    dependencies:
+      preact:
+        specifier: ^10.19.3
+        version: 10.19.3
+
+  dependencies/preact/v8:
+    dependencies:
+      preact:
+        specifier: ^8.5.3
+        version: 8.5.3
+
 packages:
   /@babel/runtime@7.23.8:
     resolution:
@@ -358,6 +376,25 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@preact/signals-core@1.5.1:
+    resolution:
+      {
+        integrity: sha512-dE6f+WCX5ZUDwXzUIWNMhhglmuLpqJhuy3X3xHrhZYI0Hm2LyQwOu0l9mdPiWrVNsE+Q7txOnJPgtIqHCYoBVA==,
+      }
+    dev: false
+
+  /@preact/signals@1.2.2(preact@10.19.3):
+    resolution:
+      {
+        integrity: sha512-ColCqdo4cRP18bAuIR4Oik5rDpiyFtPIJIygaYPMEAwTnl4buWkBOflGBSzhYyPyJfKpkwlekrvK+1pzQ2ldWw==,
+      }
+    peerDependencies:
+      preact: 10.x
+    dependencies:
+      "@preact/signals-core": 1.5.1
+      preact: 10.19.3
+    dev: false
 
   /@rollup/rollup-android-arm-eabi@4.9.5:
     resolution:
@@ -1153,6 +1190,14 @@ packages:
       {
         integrity: sha512-nHHTeFVBTHRGxJXKkKu5hT8C/YWBkPso4/Gad6xuj5dbptt9iF9NZr9pHbPhBrnT2klheu7mHTxTZ/LjwJiEiQ==,
       }
+    dev: false
+
+  /preact@8.5.3:
+    resolution:
+      {
+        integrity: sha512-O3kKP+1YdgqHOFsZF2a9JVdtqD+RPzCQc3rP+Ualf7V6rmRDchZ9MJbiGTT7LuyqFKZqlHSOyO/oMFmI2lVTsw==,
+      }
+    requiresBuild: true
     dev: false
 
   /prompts@2.4.2:
