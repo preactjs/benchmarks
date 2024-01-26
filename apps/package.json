@@ -23,5 +23,8 @@
   "homepage": "https://github.com/preactjs/benchmarks#readme",
   "dependencies": {
     "afterframe": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/web": "^0.0.135"
   }
 }

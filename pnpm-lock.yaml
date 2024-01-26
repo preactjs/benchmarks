@@ -16,9 +16,6 @@ importers:
       "@preact/benchmark-deps":
         specifier: workspace:^0.0.1
         version: link:dependencies
-      "@types/node":
-        specifier: ^20.11.5
-        version: 20.11.5
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -37,6 +34,10 @@ importers:
       afterframe:
         specifier: ^1.0.2
         version: 1.0.2
+    devDependencies:
+      "@types/web":
+        specifier: ^0.0.135
+        version: 0.0.135
 
   cli:
     dependencies:
@@ -60,8 +61,11 @@ importers:
         version: 10.0.0
       vite:
         specifier: ^5.0.11
-        version: 5.0.11(@types/node@20.11.5)
+        version: 5.0.11(@types/node@20.11.6)
     devDependencies:
+      "@types/node":
+        specifier: ^20.11.6
+        version: 20.11.6
       "@types/prompts":
         specifier: ^2.4.9
         version: 2.4.9
@@ -505,10 +509,10 @@ packages:
       }
     dev: false
 
-  /@types/node@20.11.5:
+  /@types/node@20.11.6:
     resolution:
       {
-        integrity: sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==,
+        integrity: sha512-+EOokTnksGVgip2PbYbr3xnR7kZigh4LbybAfBAw5BpnQ+FqBYUsvCEjYd70IXKlbohQ64mzEYmMtlWUY8q//Q==,
       }
     dependencies:
       undici-types: 5.26.5
@@ -519,8 +523,15 @@ packages:
         integrity: sha512-qTxFi6Buiu8+50/+3DGIWLHM6QuWsEKugJnnP6iv2Mc4ncxE4A/OJkjuVOA+5X0X1S/nq5VJRa8Lu+nwcvbrKA==,
       }
     dependencies:
-      "@types/node": 20.11.5
+      "@types/node": 20.11.6
       kleur: 3.0.3
+    dev: true
+
+  /@types/web@0.0.135:
+    resolution:
+      {
+        integrity: sha512-3fNGUqpXzakTUJ9FQVoplG+fpzVn1WhQRz3eIE7dTGY4uI8/ngi9KbAtaK4nrIUk8dAI0qYPMIvq2ydTLYbJyA==,
+      }
     dev: true
 
   /afterframe@1.0.2:
@@ -1452,7 +1463,7 @@ packages:
       }
     dev: false
 
-  /vite@5.0.11(@types/node@20.11.5):
+  /vite@5.0.11(@types/node@20.11.6):
     resolution:
       {
         integrity: sha512-XBMnDjZcNAw/G1gEiskiM1v6yzM4GE5aMGvhWTlHAYYhxb7S3/V1s3m2LDHa8Vh6yIWYYB0iJwsEaS523c4oYA==,
@@ -1483,7 +1494,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      "@types/node": 20.11.5
+      "@types/node": 20.11.6
       esbuild: 0.19.11
       postcss: 8.4.33
       rollup: 4.9.5
