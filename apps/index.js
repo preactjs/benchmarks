@@ -73,7 +73,7 @@ function mount() {
 		label.htmlFor = depId;
 		const select = document.createElement("select");
 		select.id = depId;
-		select.name = `dep-${dep}`;
+		select.name = `dep:${dep}`;
 
 		for (let version of Object.keys(config.dependencies[dep])) {
 			const option = document.createElement("option");

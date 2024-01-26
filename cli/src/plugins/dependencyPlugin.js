@@ -18,8 +18,6 @@ export function dependencyPlugin() {
 	return {
 		name: "preact-benchmark:dependency",
 		async resolveId(source, importer) {
-			console.log("[resolveId]", source, importer);
-
 			if (!importer) return;
 			if (!importer.startsWith(repoRoot("apps"))) return;
 
@@ -32,9 +30,7 @@ export function dependencyPlugin() {
 		},
 		async load(id) {
 			if (!id.startsWith(importMapPrefix)) return;
-
-			console.log("[load]", id);
-			return `throw new Error("This code should never execute because browser import maps should be redirecting this URL instead. Please report a bug");`;
+			return `throw new Error("This code should never execute because the injected browser importmap should resolve this URL to a different path. Please report a bug");`;
 		},
 		async transformIndexHtml(html, ctx) {
 			if (ctx.path === "/" || ctx.path === "/index.html") return;
@@ -45,7 +41,7 @@ export function dependencyPlugin() {
 
 			const url = new URL(ctx.originalUrl, "https://localhost:/");
 			for (let [key, value] of url.searchParams) {
-				if (!key.startsWith("dep-")) continue;
+				if (!key.startsWith("dep:")) continue;
 
 				const dep = key.slice(4);
 				const version = value;

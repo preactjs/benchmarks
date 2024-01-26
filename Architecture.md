@@ -1,6 +1,16 @@
 # Architecture
 
-TODO: Add note about how preact/@preact/signals dependencies installed in `apps` are just for typings and not used at runtime.
+> TODO: What should implementations import from? Different versions of a library
+> might have different exported APIs so they need to import a package that has
+> specific version of API. What if we define a common API that neither package
+> supports? We could do `declare module "preact"` in apps, but is it useful to
+> duplicate the preact TS types in the benchmark apps? We could install a version
+> of the libraries in apps/ to then import the types from?
+>
+> Perhaps we should just align to the latest API of the library and everything
+> else must conform to that API if possible.
+
+> TODO: Could we use `npm:` dependency aliases for different dependency versions?
 
 ## Decisions
 
