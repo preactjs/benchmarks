@@ -1,7 +1,7 @@
-import { render } from "preact-v8";
+import { render } from "preact";
 
 // @ts-expect-error Vite handles this correctly, but TS doesn't know
-export * from "preact-v8";
+export * from "preact";
 
 /**
  * @param {HTMLElement} rootDom

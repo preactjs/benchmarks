@@ -73,20 +73,25 @@ importers:
         specifier: ^2.4.9
         version: 2.4.9
 
-  dependencies:
-    dependencies:
-      preact-latest:
-        specifier: npm:preact@^10.0.0
-        version: /preact@10.19.3
-      preact-v8:
-        specifier: npm:preact@^8.5.2
-        version: /preact@8.5.3
+  dependencies: {}
 
   dependencies/preact/latest:
     dependencies:
       preact:
         specifier: latest
         version: 10.19.3
+
+  dependencies/preact/prev-minor:
+    dependencies:
+      preact:
+        specifier: 10.12.1
+        version: 10.12.1
+
+  dependencies/preact/v8:
+    dependencies:
+      preact:
+        specifier: ^8.5.2
+        version: 8.5.3
 
 packages:
   /@babel/runtime@7.23.8:
@@ -1162,6 +1167,13 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
+    dev: false
+
+  /preact@10.12.1:
+    resolution:
+      {
+        integrity: sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==,
+      }
     dev: false
 
   /preact@10.19.3:
