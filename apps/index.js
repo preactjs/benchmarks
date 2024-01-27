@@ -83,8 +83,10 @@ function mount() {
 			select.appendChild(option);
 		}
 
-		depGroup.appendChild(label);
-		depGroup.appendChild(select);
+		const depItem = document.createElement("div");
+		depItem.appendChild(label);
+		depItem.appendChild(select);
+		depGroup.appendChild(depItem);
 	}
 
 	// Add listeners

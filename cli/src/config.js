@@ -1,4 +1,6 @@
+import fs from "fs";
 import { readdir } from "node:fs/promises";
+import path from "node:path";
 import { appFilePath, depFilePath } from "./utils.js";
 
 /** @type {(name: string) => boolean} */
@@ -56,26 +58,50 @@ export async function getAppConfig() {
  * @returns {Promise<RootConfig["dependencies"]>}
  */
 export async function getDepConfig() {
-	const deps = await readdir(depFilePath(), { withFileTypes: true });
+	const searchPaths = await readdir(depFilePath(), { withFileTypes: true });
+	const deps = (
+		await Promise.all(
+			searchPaths
+				.filter((dep) => dep.isDirectory())
+				.map((dep) => findDependencyDirs(depFilePath(), dep.name))
+		)
+	).flat();
+
 	/** @type {RootConfig["dependencies"]} */
 	const dependencies = {};
-	for (let dep of deps) {
-		if (dep.isDirectory() && !shouldIgnore(dep.name)) {
-			const versions = await readdir(depFilePath(dep.name), {
-				withFileTypes: true,
-			});
 
-			/** @type {Record<string, string>} */
-			const versionsObj = {};
-			for (let version of versions) {
-				if (version.isDirectory() && !shouldIgnore(version.name)) {
-					versionsObj[version.name] = depFilePath(dep.name, version.name);
-				}
-			}
+	for (let depDir of deps) {
+		const parts = depDir.replace(depFilePath() + "/", "").split(path.sep);
+		const version = parts.pop() ?? "";
+		const depName = parts.join("/");
 
-			dependencies[dep.name] = versionsObj;
-		}
+		if (!dependencies[depName]) dependencies[depName] = {};
+		dependencies[depName][version] = depDir;
 	}
 
 	return dependencies;
+}
+
+/** @type {(searchPath: string, depName: string) => Promise<string[]>} */
+async function findDependencyDirs(searchPath, depName) {
+	const depPath = path.join(searchPath, depName);
+	const depPkgPath = path.join(depPath, "package.json");
+
+	if (fs.existsSync(depPkgPath)) {
+		return [depPath];
+	}
+
+	const results = [];
+	const subPaths = await readdir(depPath, { withFileTypes: true });
+	for (let subPath of subPaths) {
+		if (subPath.isDirectory() && !shouldIgnore(subPath.name)) {
+			const result = await findDependencyDirs(
+				searchPath,
+				depName + "/" + subPath.name
+			);
+			if (result.length) results.push(...result);
+		}
+	}
+
+	return results;
 }
