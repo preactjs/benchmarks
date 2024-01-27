@@ -1,0 +1,14 @@
+{
+  "name": "@preact/signals-prev-minor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./node_modules/@preact/signals/dist/signals.module.js"
+    }
+  },
+  "dependencies": {
+    "@preact/signals": "1.1.3"
+  }
+}

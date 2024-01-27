@@ -1,8 +1,9 @@
 import path from "node:path";
 
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
 /** @type {(...args: string[]) => string} */
-export const repoRoot = (...args) =>
-	path.join(import.meta.dirname, "../..", ...args);
+export const repoRoot = (...args) => path.join(__dirname, "../..", ...args);
 
 /** @type {(...args: string[]) => string} */
 export const appFilePath = (...args) => repoRoot("apps", ...args);

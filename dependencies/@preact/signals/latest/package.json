@@ -1,0 +1,14 @@
+{
+  "name": "@preact/signals-latest",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./node_modules/@preact/signals/dist/signals.module.js"
+    }
+  },
+  "dependencies": {
+    "@preact/signals": "latest"
+  }
+}
