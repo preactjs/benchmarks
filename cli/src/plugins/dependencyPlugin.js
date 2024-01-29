@@ -48,15 +48,15 @@ async function getImportMapForDep(dep, version) {
 
 	/** @type {ImportMap} */
 	const importMap = { imports: {} };
-	const importSpecifier = toDepImportMapId(dep);
-	importMap.imports[importSpecifier] = toURLPath(depDir(main));
+	importMap.imports[toDepImportMapId(dep)] = toURLPath(depDir(main));
 
 	for (let subPkg of Object.keys(pkg.exports ?? {})) {
 		const subPkgPath = resolve.exports(pkg, subPkg)?.[0];
 		if (!subPkgPath) continue;
 
-		const importSpecifier = toDepImportMapId(path.posix.join(dep, subPkg));
-		importMap.imports[importSpecifier] = toURLPath(depDir(subPkgPath));
+		const bareSpecifier = path.posix.join(dep, subPkg);
+		const depImportMapId = toDepImportMapId(bareSpecifier);
+		importMap.imports[depImportMapId] = toURLPath(depDir(subPkgPath));
 	}
 
 	return importMap;
@@ -71,26 +71,51 @@ async function getImportMapForDep(dep, version) {
 export function dependencyPlugin() {
 	return {
 		name: "preact-benchmark:dependency",
-		async resolveId(source, importer) {
-			if (!importer) return;
-			if (!importer.startsWith(repoRoot("apps"))) return;
+		resolveId: {
+			// Run this plugin in `pre` mode so we can reroute imports from within
+			// node_module folders to ensure every nested import of preact, etc. gets
+			// the requested version.
+			order: "pre",
+			async handler(id, importer) {
+				if (!importer) return;
 
-			// TODO: Maybe precalculate this when running benchmarks? and do it live
-			// in dev mode?
-			const depConfig = await getDepConfig();
-			const dependencies = Object.keys(depConfig);
+				// Only reroute imports from the apps directory (aka benchmark
+				// implementations) which will import the libraries whose versions we
+				// want to control and files in pnpm's node_modules folder. We reroute
+				// imports from pnpm's node_modules folder because we want to control
+				// the versions other libraries import as well. For example, if an
+				// implementation imports @preact/signals, we need to sure when
+				// @preact/signals imports @preact/hooks, it imports the version we
+				// want, and not the version it was installed with.
+				if (
+					!importer.startsWith(repoRoot("apps")) &&
+					!importer.startsWith(repoRoot("node_modules", ".pnpm"))
+				) {
+					return;
+				}
 
-			if (source === "@impl") {
-				// This is the app import. Map it to the requested implementation
-				return implImportPrefix;
-			} else if (
-				dependencies.includes(source) ||
-				dependencies.includes(source.split("/")[0])
-			) {
-				// This source url needs to be mapped. Mark for mapping by giving it a
-				// prefix that the importmap will use to map it.
-				return toDepImportMapId(source);
-			}
+				// TODO: Maybe precalculate this when running benchmarks? and do it live
+				// in dev mode?
+				const depConfig = await getDepConfig();
+				const dependencies = Object.keys(depConfig);
+
+				/** @type {string | undefined} */
+				let resolvedId;
+				if (id === "@impl") {
+					// This is the app import. Map it to the requested implementation
+					resolvedId = implImportPrefix;
+				} else if (
+					dependencies.includes(id) ||
+					dependencies.includes(id.split("/")[0])
+				) {
+					// This source url needs to be mapped. Mark for mapping by giving it a
+					// prefix that the importmap will use to map it.
+					resolvedId = toDepImportMapId(id);
+				}
+
+				// console.log(`[resolveId]`, { id, importer, resolvedId });
+				return resolvedId;
+			},
 		},
 		async load(id) {
 			if (!id.startsWith(depImportPrefix) && id !== implImportPrefix) return;
@@ -130,6 +155,8 @@ export function dependencyPlugin() {
 				const depImportMap = await getImportMapForDep(dep, version);
 				importMap.imports = { ...importMap.imports, ...depImportMap.imports };
 			}
+
+			// console.log(importMap);
 
 			// Serialize import map and fix indentation so it looks nice when debugging
 			const importMapString = JSON.stringify(importMap, null, 2)
