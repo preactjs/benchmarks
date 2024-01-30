@@ -1,5 +1,48 @@
 # Architecture
 
+> For an early discussion of goals and outcomes we wanted from this repo, see
+> <https://github.com/preactjs/benchmarks/discussions/1>
+
+## Concepts
+
+There are 4 main organizational concepts used in this repo:
+
+| Concept        | Description                                                                                                                     |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| App            | A single page app that supports operations to be benchmarked (e.g. a TODO app, `/apps/todo` folder)                             |
+| Benchmark      | An HTML file that renders an app and measures a specific operation of that app (e.g. adding a new todo, `/apps/todo/todo.html`) |
+| Implementation | An implementation of an app (e.g. Preact with class components or Preact using hooks, `/apps/todo/preact-class`)                |
+| Dependency     | A dependency of an implementation (e.g. latest Preact version, `/dependencies/preact/latest`)                                   |
+
+### Apps, benchmarks, and implementations
+
+An app is a collection of benchmarks and implementations in the `<repo root>/apps` directory. For example, the `table-app` directory refers to the application that the `js-framework-benchmark` repo uses to measure the performance of various JavaScript frameworks.
+
+Inside the `table-app` directory we have implemented a couple different benchmarks that measure different operations or aspects of that app. For example, the `replace1k.html` benchmark measures the time it takes to replace 1,000 rows in the table. The `hydrate1k.html` benchmark measures the time it takes to hydrate 1,000 rows in the table.
+
+For this app, there are also a couple different implementations of that app that we can measure:
+
+- `preact-class` uses Preact class components
+- `preact-hooks` uses Preact hooks.
+- `preact-compat` uses Preact's compatibility layer
+- `preact-signals` implements the same app using `@preact/signals`
+
+The pattern described here is used for all apps in the `apps` directory. The folders inside of an app's directory typically are named after the implementation they contain. HTML files within in the app's directory contain the code to load and measure an operation on implementation of that app.
+
+### Dependencies
+
+Each app is implemented using a JS framework (namely Preact or one of our ecosystem libraries). It is useful to be able to measure and compare how different versions of a framework perform. For example, we might want to compare how Preact v10.5.0 performs compared to Preact v10.6.0. Or how a change in my local repository of Preact performs compared to the latest version of Preact.
+
+All of the dependencies we support comparing are in the `<repo root>/dependencies` directory. Each dependency has a directory named after the dependency (and scoped dependencies are nested so `@preact/signals` will be in the `dependencies/@preact/signals` folder). Inside that directory are directories for each version of that dependency that we support. For example, the `preact` directory contains a `local` directory that will load code from a local clone of Preact repository. It also contains a `latest` directory that contains the latest version of Preact from NPM.
+
+Inside these directories are the files that are needed to load that dependency. For example, the `local` directory contains scripts to setup loading from a local Preact repository. The `latest` directory contains a `package.json` file that points to the latest version of Preact on NPM. Inside these "proxy packages" you can implement code to massage over minor API differences that may exist between differences versions. For example, in the Preact versions we expose a `createRoot` API that wraps Preact to normalize over API differences between Preact versions.
+
+## Benchmark server
+
+In order to actually run benchmarks, we need a server to serve the benchmark HTML files. We use Vite as this server, customized to support our needs.
+
+The benchmark server is a web server that serves the benchmark apps and the implementations of those apps. It also serves the dependencies that the implementations use. The benchmark server is responsible for mapping the `impl` and `dep` query parameters to the correct implementation and dependency version.
+
 > TODO: What should implementations import from? Different versions of a library
 > might have different exported APIs so they need to import a package that has
 > specific version of API. What if we define a common API that neither package
