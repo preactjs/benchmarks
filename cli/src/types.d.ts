@@ -1,3 +1,26 @@
+interface BenchmarkCLIOpts {
+	interactive: boolean;
+	dependency: string | string[];
+	impl: string | string[];
+	"sample-size": number;
+	horizon: string;
+	timeout: number;
+	trace: boolean;
+	debug: boolean;
+	browser: string | string[];
+}
+
+interface BenchmarkActionConfig {
+	depGroups: string[][];
+	implementations: string[];
+	"sample-size": number;
+	horizon: string;
+	timeout: number;
+	trace: boolean;
+	debug: boolean;
+	browser: string[];
+}
+
 interface DependencyConfig {
 	path: string;
 	setup?: string;
