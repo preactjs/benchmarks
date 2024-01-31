@@ -10,6 +10,15 @@ const config = /** @type {RootConfig} */ (window.configData);
 if (!config) throw new Error("Missing config data");
 
 const versionSep = "@";
+/** @type {(version: string) => DepVersion} */
+function parseDepVersion(version) {
+	const index = version.lastIndexOf(versionSep);
+	return [version.slice(0, index), version.slice(index + 1)];
+}
+/** @type {(name: string, version: string) => string} */
+function makeDepVersion(name, version) {
+	return `${name}${versionSep}${version}`;
+}
 
 const form = /** @type {HTMLFormElement} */ (
 	document.getElementById("benchmark-form")
@@ -79,12 +88,17 @@ function mount() {
 		select.id = depId;
 		select.name = "dep";
 
+		const prevVersion =
+			initialConfig
+				.getAll("dep")
+				.map((d) => parseDepVersion(d))
+				.find(([name]) => name === dep)?.[1] ?? "latest";
+
 		for (let version of Object.keys(config.dependencies[dep])) {
 			const option = document.createElement("option");
-			option.value = `${dep}${versionSep}${version}`;
+			option.value = makeDepVersion(dep, version);
 			option.textContent = version;
-			// TODO: restore selected state
-			// option.selected = version === (initialConfig.get(dep) ?? "latest");
+			option.selected = version === prevVersion;
 			select.appendChild(option);
 		}
 
