@@ -1,6 +1,8 @@
-import * as path from "path";
+import { spawn } from "node:child_process";
+import { writeFile, mkdir } from "node:fs/promises";
+import { createRequire } from "node:module";
+import * as path from "node:path";
 import { deleteAsync } from "del";
-import { writeFile, mkdir } from "fs/promises";
 import {
 	baseTraceLogDir,
 	configDir,
@@ -8,7 +10,10 @@ import {
 	getBenchmarkId,
 	getBenchmarkURL,
 	repoRoot,
+	resultsPath,
 } from "./utils.js";
+
+const require = createRequire(import.meta.url);
 
 const measureName = "duration"; // Must match measureName in '../src/util.js'
 const TACH_SCHEMA =
@@ -75,7 +80,7 @@ function getMeasurements(benchName) {
  * @param {BenchmarkConfig} benchConfig
  * @returns {Promise<{ name: string; configPath: string; config: TachConfig; }>}
  */
-export async function generateTachConfig(benchmarkFile, benchConfig) {
+async function generateTachConfig(benchmarkFile, benchConfig) {
 	const baseName = getBenchmarkBaseName(benchmarkFile);
 
 	if (benchConfig.browser.name == "chrome" && benchConfig.trace) {
@@ -119,16 +124,59 @@ export async function generateTachConfig(benchmarkFile, benchConfig) {
 		],
 	};
 
-	const tachConfigPath = await writeConfig(baseName, tachConfig);
+	const tachConfigPath = configDir(baseName + ".config.json");
+	await mkdir(path.dirname(tachConfigPath), { recursive: true });
+	await writeFile(tachConfigPath, JSON.stringify(tachConfig, null, 2), "utf8");
 
 	return { name: baseName, configPath: tachConfigPath, config: tachConfig };
 }
 
-/** @type {(name: string, tachConfig: TachConfig) => Promise<string>} */
-async function writeConfig(name, tachConfig) {
-	const configPath = configDir(name + ".config.json");
-	await mkdir(path.dirname(configPath), { recursive: true });
-	await writeFile(configPath, JSON.stringify(tachConfig, null, 2), "utf8");
+/**
+ * @param {import('child_process').ChildProcess} childProcess
+ * @returns {Promise<void>}
+ */
+async function waitForExit(childProcess) {
+	return new Promise((resolve, reject) => {
+		childProcess.once("exit", (code, signal) => {
+			if (code === 0 || signal == "SIGINT") {
+				resolve();
+			} else {
+				reject(new Error("Exit with error code: " + code));
+			}
+		});
 
-	return configPath;
+		childProcess.once("error", (err) => {
+			reject(err);
+		});
+	});
+}
+
+/** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<string>} */
+export async function runTach(benchmarkFile, benchConfig) {
+	const { name, configPath } = await generateTachConfig(
+		benchmarkFile,
+		benchConfig,
+	);
+
+	const resultsFile = resultsPath(name + ".json");
+	const tachArgs = [
+		require.resolve("tachometer/bin/tach.js"),
+		"--config",
+		configPath,
+		"--json-file",
+		resultsFile,
+	];
+
+	if (benchConfig.debug) {
+		console.log("\n$", process.execPath, ...tachArgs);
+	}
+
+	const tachProc = spawn(process.execPath, tachArgs, {
+		cwd: repoRoot(),
+		stdio: ["ignore", "ignore", "inherit"],
+	});
+
+	await waitForExit(tachProc);
+
+	return resultsFile;
 }
