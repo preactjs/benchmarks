@@ -1,11 +1,12 @@
 import { spawn } from "node:child_process";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { createServer } from "vite";
 import { rootIndexPlugin } from "./plugins/rootIndexPlugin.js";
 import { repoRoot, resultsPath } from "./utils.js";
 import { dependencyPlugin } from "./plugins/dependencyPlugin.js";
 import { generateTachConfig } from "./tach.js";
+import { displayResults } from "./results.js";
 
 const require = createRequire(import.meta.url);
 
@@ -63,12 +64,13 @@ export async function runBenchmarks(benchmarkFile, benchConfig) {
 
 	const server = await runBenchServer(false, benchConfig.port);
 
+	const resultsFile = resultsPath(name + ".json");
 	const tachArgs = [
 		require.resolve("tachometer/bin/tach.js"),
 		"--config",
 		configPath,
 		"--json-file",
-		resultsPath(name + ".json"),
+		resultsFile,
 	];
 
 	console.log("\n$", process.execPath, ...tachArgs);
@@ -80,6 +82,9 @@ export async function runBenchmarks(benchmarkFile, benchConfig) {
 				stdio: "inherit",
 			}),
 		);
+
+		const results = JSON.parse(await readFile(resultsFile, "utf8"));
+		await displayResults(results);
 	} finally {
 		await server.close();
 	}
