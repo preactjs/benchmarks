@@ -83,3 +83,6 @@ type BrowserConfig = Exclude<
 	TachBenchmarkConfig["browser"],
 	string | undefined
 >;
+
+type TachResults = import("tachometer/lib/stats").ResultStatsWithDifferences[];
+type TachFileResults = import("tachometer/lib/json-output").JsonOutputFile;

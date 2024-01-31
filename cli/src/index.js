@@ -39,10 +39,9 @@ export async function runBenchmarks(benchmarkFile, benchConfig) {
 	const server = await runBenchServer(false, benchConfig.port);
 
 	try {
-		const resultsFile = await runTach(benchmarkFile, benchConfig);
+		const results = await runTach(benchmarkFile, benchConfig);
 		console.log();
 
-		const results = JSON.parse(await readFile(resultsFile, "utf8"));
 		await displayResults(results);
 	} finally {
 		await server.close();

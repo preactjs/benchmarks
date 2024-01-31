@@ -1,8 +1,8 @@
-import { spawn } from "node:child_process";
 import { writeFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import * as path from "node:path";
 import { deleteAsync } from "del";
+import { main } from "tachometer";
 import {
 	baseTraceLogDir,
 	configDir,
@@ -151,32 +151,31 @@ async function waitForExit(childProcess) {
 	});
 }
 
-/** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<string>} */
+/** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<TachResults>} */
 export async function runTach(benchmarkFile, benchConfig) {
 	const { name, configPath } = await generateTachConfig(
 		benchmarkFile,
 		benchConfig,
 	);
 
-	const resultsFile = resultsPath(name + ".json");
-	const tachArgs = [
-		require.resolve("tachometer/bin/tach.js"),
-		"--config",
-		configPath,
-		"--json-file",
-		resultsFile,
-	];
+	/** @type {TachResults | undefined} */
+	let results;
 
-	if (benchConfig.debug) {
-		console.log("\n$", process.execPath, ...tachArgs);
+	// Disable console.log while Tach is running to prevent the giant table from
+	// printing to the console so our own results table is the only output.
+	const realLog = console.log;
+	try {
+		console.log = () => {};
+		results = await main([
+			"--config",
+			configPath,
+			"--json-file",
+			resultsPath(name + ".json"),
+		]);
+	} finally {
+		console.log = realLog;
 	}
 
-	const tachProc = spawn(process.execPath, tachArgs, {
-		cwd: repoRoot(),
-		stdio: ["ignore", "ignore", "inherit"],
-	});
-
-	await waitForExit(tachProc);
-
-	return resultsFile;
+	if (!results) throw new Error(`Tachometer did not produce any results.`);
+	return results;
 }
