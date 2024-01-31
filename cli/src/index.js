@@ -48,8 +48,10 @@ export async function runBenchServer(dev = false, port) {
 
 	await server.listen();
 
-	server.printUrls();
-	server.bindCLIShortcuts({ print: true });
+	if (dev) {
+		server.printUrls();
+		server.bindCLIShortcuts({ print: true });
+	}
 
 	return server;
 }
@@ -73,7 +75,9 @@ export async function runBenchmarks(benchmarkFile, benchConfig) {
 		resultsFile,
 	];
 
-	console.log("\n$", process.execPath, ...tachArgs);
+	if (benchConfig.debug) {
+		console.log("\n$", process.execPath, ...tachArgs);
+	}
 
 	try {
 		await waitForExit(

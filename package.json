@@ -48,5 +48,10 @@
   },
   "volta": {
     "node": "20.11.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "tachometer@0.7.0": "patches/tachometer@0.7.0.patch"
+    }
   }
 }

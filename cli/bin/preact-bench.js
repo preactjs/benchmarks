@@ -301,9 +301,9 @@ async function benchAction(benchmarkFile, args) {
 			args.impl = await promptImpl(benchmarkFile);
 			args.dependency = await promptDependency();
 		}
-	}
 
-	logBenchCommand(benchmarkFile, args);
+		logBenchCommand(benchmarkFile, args);
+	}
 
 	const benchConfig = parseBenchmarkCLIArgs(args);
 	await runBenchmarks(benchmarkFile, benchConfig);

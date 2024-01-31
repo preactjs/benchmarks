@@ -1,0 +1,13 @@
+diff --git a/lib/runner.js b/lib/runner.js
+index 6035a824b3dfc0a0e844e789d3553c3a4d3fac69..34237a66f403f1b7df3e73637604d93a92ecbb7b 100644
+--- a/lib/runner.js
++++ b/lib/runner.js
+@@ -48,7 +48,7 @@ export class Runner {
+         if (this.config.githubCheck !== undefined) {
+             this.completeGithubCheck = await github.createCheck(this.config.githubCheck);
+         }
+-        console.log('Running benchmarks\n');
++        // console.log('Running benchmarks\n');
+         await this.warmup();
+         await this.takeMinimumSamples();
+         await this.takeAdditionalSamples();

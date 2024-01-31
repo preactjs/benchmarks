@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  tachometer@0.7.0:
+    hash: le66nmxghhg5lyvsp5p73r7y5e
+    path: patches/tachometer@0.7.0.patch
+
 importers:
 
   .:
@@ -65,7 +70,7 @@ importers:
         version: 1.8.1
       tachometer:
         specifier: ^0.7.0
-        version: 0.7.0
+        version: 0.7.0(patch_hash=le66nmxghhg5lyvsp5p73r7y5e)
       urlpattern-polyfill:
         specifier: 10.0.0
         version: 10.0.0
@@ -2820,7 +2825,7 @@ packages:
       strip-ansi: 6.0.1
     dev: false
 
-  /tachometer@0.7.0:
+  /tachometer@0.7.0(patch_hash=le66nmxghhg5lyvsp5p73r7y5e):
     resolution: {integrity: sha512-163DdzoNkjZlr/m3IpaPMYBOTUc54hzfGSUw7pv9ZoO3OkjDcoGqJGImcrfEDNsw3DD0J/FM5AWjEi2/0W4YZA==}
     hasBin: true
     dependencies:
@@ -2856,6 +2861,7 @@ packages:
       - supports-color
       - utf-8-validate
     dev: false
+    patched: true
 
   /tmp@0.0.33:
     resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
