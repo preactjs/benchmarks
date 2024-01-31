@@ -1,11 +1,5 @@
 // This file powers the app & benchmark selection form on the /index.html page.
 
-// To test:
-// - Changing app updates benchmarks & implementations
-// - Changing app or benchmark updates form action
-// - Form state is saved & restored after submitting
-// - From submissions creates expected URL
-
 const config = /** @type {RootConfig} */ (window.configData);
 if (!config) throw new Error("Missing config data");
 
