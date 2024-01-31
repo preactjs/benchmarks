@@ -30,8 +30,8 @@ async function waitForExit(childProcess) {
 	});
 }
 
-/** @type {(hmr?: boolean, port?: number) => Promise<import("vite").ViteDevServer>} */
-export async function runBenchServer(hmr, port) {
+/** @type {(dev?: boolean, port?: number) => Promise<import("vite").ViteDevServer>} */
+export async function runBenchServer(dev = false, port) {
 	// TODO: Consider how in dev mode how to handle preparing dependencies...
 	const server = await createServer({
 		root: repoRoot(),
@@ -42,7 +42,7 @@ export async function runBenchServer(hmr, port) {
 			jsxFragment: "Fragment",
 		},
 		optimizeDeps: { disabled: true },
-		server: { port, hmr },
+		server: { port, hmr: dev },
 		plugins: [rootIndexPlugin(), dependencyPlugin()],
 	});
 
