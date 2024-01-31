@@ -9,6 +9,18 @@
 		<h1>Replace 1k</h1>
 		<script type="module">
 			import "@impl";
+			import { measureName, measureMemory } from "../utils.js";
+
+			performance.mark("start");
+
+			const WARMUP_COUNT = 5;
+			for (let i = 0; i < WARMUP_COUNT; i++) {
+				performance.measure(`run-warmup-${i}`, "start");
+			}
+
+			performance.measure("run-final", "start");
+			performance.measure(measureName, "start");
+			measureMemory();
 		</script>
 	</body>
 </html>
