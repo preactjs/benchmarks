@@ -2,7 +2,7 @@
 
 import inquirer from "inquirer";
 import sade from "sade";
-import { runBenchmarks, runDevServer } from "../src/index.js";
+import { runBenchServer, runBenchmarks } from "../src/index.js";
 import { getDepConfig } from "../src/config.js";
 
 const IS_CI = process.env.CI === "true";
@@ -10,8 +10,8 @@ const defaultBenchOptions = {
 	interactive: false,
 	dependency: "latest",
 	impl: "preact-class",
-	// Tachometer default is 50, but locally let's only do 10
-	"sample-size": !IS_CI ? 10 : 50,
+	// Tachometer default is 50, but locally let's only do 25
+	"sample-size": !IS_CI ? 25 : 50,
 	// Tachometer default is 10% but let's do 5% to save some GitHub action
 	// minutes by reducing the likelihood of needing auto-sampling. See
 	// https://github.com/Polymer/tachometer#auto-sampling
@@ -22,6 +22,7 @@ const defaultBenchOptions = {
 	trace: false,
 	debug: false,
 	browser: "chrome-headless",
+	port: 5173,
 };
 
 const prompts = inquirer.createPromptModule();
@@ -53,7 +54,7 @@ async function promptBenchmarkFile() {
 						const benchmarkFile = `${appName}/${benchmarkName}`;
 						return { title: benchmarkFile, value: benchmarkFile };
 					});
-				}
+				},
 			),
 		},
 	]);
@@ -79,7 +80,7 @@ async function promptImpl(benchmarkFile) {
 			choices: Object.keys(appConfig[appName].implementations).map(
 				(implName) => {
 					return { title: implName, value: implName };
-				}
+				},
 			),
 		},
 	]);
@@ -137,7 +138,7 @@ async function promptDependency() {
 						Object.keys(versionsObj).map((version) => {
 							const depVersion = `${depName}/${version}`;
 							return { title: "\t" + depVersion, value: depVersion };
-						})
+						}),
 					);
 				}),
 			},
@@ -246,18 +247,30 @@ async function benchAction(benchmarkFile, opts) {
 		}
 	}
 
+	// TODO: Consider ways to simplify this
+	const depGroups = (
+		Array.isArray(opts.dependency) ? opts.dependency : [opts.dependency]
+	)
+		.map((depGroup) => depGroup.split(","))
+		.map((depGroup) => {
+			return depGroup.map((dep) => {
+				const index = dep.lastIndexOf("/");
+
+				/** @type {DependencyTuple} */
+				const depTuple = [dep.slice(0, index), dep.slice(index + 1)];
+				return depTuple;
+			});
+		});
+
 	/** @type {BenchmarkActionConfig} */
 	const config = {
 		...opts,
-		depGroups: (Array.isArray(opts.dependency)
-			? opts.dependency
-			: [opts.dependency]
-		).map((depGroup) => depGroup.split(",")),
+		depGroups,
 		implementations: Array.isArray(opts.impl) ? opts.impl : [opts.impl],
-		browser: Array.isArray(opts.browser) ? opts.browser : [opts.browser],
+		browser: Array.isArray(opts.browser)
+			? opts.browser.at(-1) ?? defaultBenchOptions.browser
+			: opts.browser,
 	};
-
-	console.log(benchmarkFile, opts);
 
 	logBenchCommand(benchmarkFile, opts);
 	await runBenchmarks(benchmarkFile, config);
@@ -268,61 +281,74 @@ const prog = sade("preact-bench").version("0.0.0");
 prog
 	.command("bench [benchmark_file]")
 	.describe(
-		"Run the given benchmark using the specified implementation with the specified dependencies. If no benchmark file, no dependencies, or no implementations are specified, will prompt for one."
+		"Run the given benchmark using the specified implementation with the specified dependencies. If no benchmark file, no dependencies, or no implementations are specified, will prompt for one.",
 	)
 	.example("bench")
 	.example("bench apps/todo/todo.html")
 	.example("bench apps/todo/todo.html -d preact/local -d preact/latest")
 	.example(
-		"bench apps/todo/todo.html -d preact/local -d preact/main -i preact-hooks"
+		"bench apps/todo/todo.html -d preact/local -d preact/main -i preact-hooks",
 	)
 	.example(
-		"bench apps/todo/todo.html -d preact/local,signals/local -d preact/main,signals/local -i preact-signals -n 2 -t 0"
+		"bench apps/todo/todo.html -d preact/local,signals/local -d preact/main,signals/local -i preact-signals -n 2 -t 0",
 	)
 	.example("bench apps/todo/todo.html -d preact/local -d preact/main --trace")
 	.option(
 		"--interactive",
 		"Prompt for options. Defaults to true of no benchmark file, dependencies, or implementations are specified",
-		defaultBenchOptions.interactive
+		defaultBenchOptions.interactive,
 	)
 	.option(
 		"-d, --dependency",
 		"What group of dependencies (comma-delimited) and version to use for a run of the benchmark",
-		defaultBenchOptions.dependency
+		defaultBenchOptions.dependency,
 	)
 	.option(
 		"-i, --impl",
 		"What implementation of the benchmark to run",
-		defaultBenchOptions.impl
+		defaultBenchOptions.impl,
 	)
 	.option(
 		"-n, --sample-size",
 		"Minimum number of times to run each benchmark",
-		defaultBenchOptions["sample-size"]
+		defaultBenchOptions["sample-size"],
 	)
 	.option(
 		"-h, --horizon",
 		'The degrees of difference to try and resolve when auto-sampling ("N%" or "Nms", comma-delimited)',
-		defaultBenchOptions.horizon
+		defaultBenchOptions.horizon,
 	)
 	.option(
 		"-t, --timeout",
 		"Maximum number of minutes to spend auto-sampling",
-		defaultBenchOptions.timeout
+		defaultBenchOptions.timeout,
 	)
 	.option(
 		"--trace",
 		"Enable performance tracing (Chrome only)",
-		defaultBenchOptions.trace
+		defaultBenchOptions.trace,
 	)
 	.option("--debug", "Enable debug logging", defaultBenchOptions.debug)
 	.option(
 		"-b, --browser",
-		"Which browsers (comma-delimited) to run the benchmarks in: chrome, chrome-headless, firefox, firefox-headless, safari, edge",
-		defaultBenchOptions.browser
+		"Which browser to run the benchmarks in: chrome, chrome-headless, firefox, firefox-headless, safari, edge",
+		defaultBenchOptions.browser,
+	)
+	.option(
+		"-p, --port",
+		"What port to run the benchmark server on",
+		defaultBenchOptions.port,
 	)
 	.action(benchAction);
 
-prog.command("dev").describe("Run dev server").action(runDevServer);
+prog
+	.command("dev")
+	.describe("Run dev server")
+	.option(
+		"-p, --port",
+		"What port to run the benchmark server on",
+		defaultBenchOptions.port,
+	)
+	.action((opts) => runBenchServer({ hmr: true, port: opts.port }));
 
 prog.parse(process.argv);

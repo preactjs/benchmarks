@@ -17,7 +17,7 @@ require.extensions[".tsx"] = compileModule;
 require.extensions[".ts"] = compileModule;
 
 const pattern = new URLPattern(
-	"https://localhost:/apps/:appName/:benchmarkName",
+	"http://localhost:/apps/:appName/:benchmarkName",
 );
 
 const depImportPrefix = `/@dep/`;
@@ -125,7 +125,7 @@ export function dependencyPlugin() {
 			if (ctx.path === "/" || ctx.path === "/index.html") return;
 			if (!ctx.originalUrl) return;
 
-			const url = new URL(ctx.originalUrl, "https://localhost/");
+			const url = new URL(ctx.originalUrl, "http://localhost/");
 			const match = pattern.exec(url);
 			if (!match) return;
 

@@ -8,17 +8,24 @@ interface BenchmarkCLIOpts {
 	trace: boolean;
 	debug: boolean;
 	browser: string | string[];
+	port: number;
 }
 
+type DepName = string;
+type Version = string;
+type DependencyTuple = [DepName, Version];
+type DependencyGroup = DependencyTuple[];
+
 interface BenchmarkActionConfig {
-	depGroups: string[][];
+	depGroups: DependencyGroup[];
 	implementations: string[];
 	"sample-size": number;
 	horizon: string;
 	timeout: number;
 	trace: boolean;
 	debug: boolean;
-	browser: string[];
+	browser: string;
+	port: number;
 }
 
 interface DependencyConfig {

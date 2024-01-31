@@ -9,6 +9,11 @@
 		<h1>TODO app</h1>
 		<script type="module">
 			import "@impl";
+			import { measureName, measureMemory } from "../utils.js";
+
+			performance.mark("start");
+			performance.measure(measureName, "start");
+			measureMemory();
 		</script>
 	</body>
 </html>
