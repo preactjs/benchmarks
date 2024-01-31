@@ -10,6 +10,8 @@
 ## Vite Benchmark page
 
 - Benchmark page renders correctly
+  - When all deps are specified
+  - When some deps are specified
 - Correct implementation loads when specified
 - Correct code is loaded when deps are specified
 - HMR does not load when in benchmark mode

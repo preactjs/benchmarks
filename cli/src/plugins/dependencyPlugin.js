@@ -147,9 +147,13 @@ export function dependencyPlugin() {
 				require.resolve(repoRoot("apps", appName, impl)),
 			);
 
-			for (const paramValue of params.getAll("dep")) {
-				const [depName, version] = parseDepVersion(paramValue);
+			const depConfig = await getDepConfig();
+			const specifiedDeps = params.getAll("dep").map((v) => parseDepVersion(v));
 
+			// Specify an import map for each dependency, defaulting unspecified ones to "latest"
+			for (const depName of Object.keys(depConfig)) {
+				const version =
+					specifiedDeps.find(([name]) => name === depName)?.[1] ?? "latest";
 				const depImportMap = await getImportMapForDep(depName, version);
 				importMap.imports = { ...importMap.imports, ...depImportMap.imports };
 			}
