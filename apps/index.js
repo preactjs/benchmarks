@@ -9,6 +9,8 @@
 const config = /** @type {RootConfig} */ (window.configData);
 if (!config) throw new Error("Missing config data");
 
+const versionSep = "@";
+
 const form = /** @type {HTMLFormElement} */ (
 	document.getElementById("benchmark-form")
 );
@@ -75,13 +77,14 @@ function mount() {
 		label.htmlFor = depId;
 		const select = document.createElement("select");
 		select.id = depId;
-		select.name = `dep:${dep}`;
+		select.name = "dep";
 
 		for (let version of Object.keys(config.dependencies[dep])) {
 			const option = document.createElement("option");
-			option.value = version;
+			option.value = `${dep}${versionSep}${version}`;
 			option.textContent = version;
-			option.selected = version === initialConfig.get(dep);
+			// TODO: restore selected state
+			// option.selected = version === (initialConfig.get(dep) ?? "latest");
 			select.appendChild(option);
 		}
 

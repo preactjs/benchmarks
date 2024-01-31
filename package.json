@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "description": "Repository of benchmarks for Preact",
   "scripts": {
+    "bench": "node cli/bin/preact-bench.js bench",
     "format": "prettier --no-error-on-unmatched-pattern --write **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
     "lint": "pnpm lint:format && pnpm tsc",
     "lint:format": "prettier --no-error-on-unmatched-pattern --check **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",

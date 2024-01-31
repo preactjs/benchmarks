@@ -2,6 +2,9 @@ import path from "node:path";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
+/** @type {(val: string | string[]) => string[]} */
+export const ensureArray = (val) => (Array.isArray(val) ? val : [val]);
+
 /** @type {(...args: string[]) => string} */
 export const repoRoot = (...args) => path.join(__dirname, "../..", ...args);
 
@@ -58,7 +61,7 @@ export function getBenchmarkURL(baseURL, benchmarkFile, dependencies, impl) {
 	url.searchParams.set("impl", impl);
 
 	for (let [depName, version] of dependencies) {
-		url.searchParams.append(`dep:${depName}`, version);
+		url.searchParams.append("dep", makeDepVersion(depName, version));
 	}
 
 	return url;
@@ -105,4 +108,17 @@ export function parseBenchmarkId(benchId) {
 			return [name, version];
 		}),
 	};
+}
+
+export const versionSep = "@";
+
+/** @type {(version: string) => DepVersion} */
+export function parseDepVersion(version) {
+	const index = version.lastIndexOf(versionSep);
+	return [version.slice(0, index), version.slice(index + 1)];
+}
+
+/** @type {(name: string, version: string) => string} */
+export function makeDepVersion(name, version) {
+	return `${name}${versionSep}${version}`;
 }

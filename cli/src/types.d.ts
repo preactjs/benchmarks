@@ -13,8 +13,8 @@ interface BenchmarkCLIOpts {
 
 type DepName = string;
 type Version = string;
-type DependencyTuple = [DepName, Version];
-type DependencyGroup = DependencyTuple[];
+type DepVersion = [DepName, Version];
+type DependencyGroup = DepVersion[];
 
 interface BenchmarkActionConfig {
 	depGroups: DependencyGroup[];

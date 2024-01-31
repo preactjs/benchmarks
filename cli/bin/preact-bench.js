@@ -4,6 +4,12 @@ import inquirer from "inquirer";
 import sade from "sade";
 import { runBenchServer, runBenchmarks } from "../src/index.js";
 import { getDepConfig } from "../src/config.js";
+import {
+	ensureArray,
+	makeDepVersion,
+	parseDepVersion,
+	versionSep,
+} from "../src/utils.js";
 
 const IS_CI = process.env.CI === "true";
 const defaultBenchOptions = {
@@ -109,12 +115,16 @@ async function promptDependency() {
 		const answers = input;
 		const depNames = Object.keys(depConfig);
 		for (let depName of depNames) {
-			const matchingAns = answers.filter((a) => a.startsWith(depName + "/"));
+			const matchingAns = answers.filter((a) =>
+				a.startsWith(depName + versionSep),
+			);
+
 			if (matchingAns.length > 1) {
-				const selected = matchingAns
-					.map((a) => a.split("/").at(-1))
+				const selectedVersions = matchingAns
+					.map((a) => parseDepVersion(a)[1])
 					.join('", "');
-				return `Only one version of "${depName}" can be selected. "${selected}" was selected.`;
+
+				return `Only one version of "${depName}" can be selected. "${selectedVersions}" was selected.`;
 			}
 		}
 
@@ -136,8 +146,8 @@ async function promptDependency() {
 					const choices = [new inquirer.Separator(depName)];
 					return choices.concat(
 						Object.keys(versionsObj).map((version) => {
-							const depVersion = `${depName}/${version}`;
-							return { title: "\t" + depVersion, value: depVersion };
+							const depVersion = makeDepVersion(depName, version);
+							return { title: depVersion, value: depVersion };
 						}),
 					);
 				}),
@@ -226,8 +236,10 @@ function logBenchCommand(benchmarkFile, opts) {
 		}
 	}
 
+	console.log("\n" + "=".repeat(40));
 	console.log("To run this benchmark again, run:");
 	console.log(cli.join(" "));
+	console.log("=".repeat(40) + "\n");
 }
 
 /** @type {(benchmarkFile: string, opts: BenchmarkCLIOpts) => Promise<void>} */
@@ -248,25 +260,15 @@ async function benchAction(benchmarkFile, opts) {
 	}
 
 	// TODO: Consider ways to simplify this
-	const depGroups = (
-		Array.isArray(opts.dependency) ? opts.dependency : [opts.dependency]
-	)
+	const depGroups = ensureArray(opts.dependency)
 		.map((depGroup) => depGroup.split(","))
-		.map((depGroup) => {
-			return depGroup.map((dep) => {
-				const index = dep.lastIndexOf("/");
-
-				/** @type {DependencyTuple} */
-				const depTuple = [dep.slice(0, index), dep.slice(index + 1)];
-				return depTuple;
-			});
-		});
+		.map((depGroup) => depGroup.map((dep) => parseDepVersion(dep)));
 
 	/** @type {BenchmarkActionConfig} */
 	const config = {
 		...opts,
 		depGroups,
-		implementations: Array.isArray(opts.impl) ? opts.impl : [opts.impl],
+		implementations: ensureArray(opts.impl),
 		browser: Array.isArray(opts.browser)
 			? opts.browser.at(-1) ?? defaultBenchOptions.browser
 			: opts.browser,
@@ -285,14 +287,14 @@ prog
 	)
 	.example("bench")
 	.example("bench apps/todo/todo.html")
-	.example("bench apps/todo/todo.html -d preact/local -d preact/latest")
+	.example("bench apps/todo/todo.html -d preact@local -d preact@latest")
 	.example(
-		"bench apps/todo/todo.html -d preact/local -d preact/main -i preact-hooks",
+		"bench apps/todo/todo.html -d preact@local -d preact@main -i preact-hooks",
 	)
 	.example(
-		"bench apps/todo/todo.html -d preact/local,signals/local -d preact/main,signals/local -i preact-signals -n 2 -t 0",
+		"bench apps/todo/todo.html -d preact@local,signals@local -d preact@main,signals@local -i preact-signals -n 2 -t 0",
 	)
-	.example("bench apps/todo/todo.html -d preact/local -d preact/main --trace")
+	.example("bench apps/todo/todo.html -d preact@local -d preact@main --trace")
 	.option(
 		"--interactive",
 		"Prompt for options. Defaults to true of no benchmark file, dependencies, or implementations are specified",
@@ -300,7 +302,7 @@ prog
 	)
 	.option(
 		"-d, --dependency",
-		"What group of dependencies (comma-delimited) and version to use for a run of the benchmark",
+		"What group of dependencies (comma-delimited) and version to use for a run of the benchmark (package@version)",
 		defaultBenchOptions.dependency,
 	)
 	.option(

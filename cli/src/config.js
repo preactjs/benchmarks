@@ -54,41 +54,16 @@ export async function getAppConfig() {
 }
 
 /**
- * Get the list of dependencies and the versions available for each.
- * @returns {Promise<RootConfig["dependencies"]>}
+ * Find all directories with a `package.json` file in the `searchPath`. Return
+ * the paths from the search path to directory.
+ * @type {(searchPath: string, depName: string) => Promise<string[]>}
  */
-export async function getDepConfig() {
-	const searchPaths = await readdir(depFilePath(), { withFileTypes: true });
-	const deps = (
-		await Promise.all(
-			searchPaths
-				.filter((dep) => dep.isDirectory())
-				.map((dep) => findDependencyDirs(depFilePath(), dep.name)),
-		)
-	).flat();
-
-	/** @type {RootConfig["dependencies"]} */
-	const dependencies = {};
-
-	for (let depDir of deps) {
-		const parts = depDir.replace(depFilePath() + "/", "").split(path.sep);
-		const version = parts.pop() ?? "";
-		const depName = parts.join("/");
-
-		if (!dependencies[depName]) dependencies[depName] = {};
-		dependencies[depName][version] = depDir;
-	}
-
-	return dependencies;
-}
-
-/** @type {(searchPath: string, depName: string) => Promise<string[]>} */
 async function findDependencyDirs(searchPath, depName) {
 	const depPath = path.join(searchPath, depName);
 	const depPkgPath = path.join(depPath, "package.json");
 
 	if (fs.existsSync(depPkgPath)) {
-		return [depPath];
+		return [depName];
 	}
 
 	const results = [];
@@ -104,4 +79,35 @@ async function findDependencyDirs(searchPath, depName) {
 	}
 
 	return results;
+}
+
+/**
+ * Get the list of dependencies and the versions available for each.
+ * @returns {Promise<RootConfig["dependencies"]>}
+ */
+export async function getDepConfig() {
+	const searchPaths = await readdir(depFilePath(), { withFileTypes: true });
+
+	/** Directories containing a `package.json` from `depFilePath()`, e.g. preact/latest */
+	const deps = (
+		await Promise.all(
+			searchPaths
+				.filter((dep) => dep.isDirectory() && !shouldIgnore(dep.name))
+				.map((dep) => findDependencyDirs(depFilePath(), dep.name)),
+		)
+	).flat();
+
+	/** @type {RootConfig["dependencies"]} */
+	const dependencies = {};
+
+	for (let depDir of deps) {
+		const index = depDir.lastIndexOf("/");
+		const depName = depDir.slice(0, index);
+		const version = depDir.slice(index + 1);
+
+		if (!dependencies[depName]) dependencies[depName] = {};
+		dependencies[depName][version] = depDir;
+	}
+
+	return dependencies;
 }
