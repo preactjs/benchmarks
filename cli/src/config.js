@@ -10,11 +10,16 @@ function shouldIgnore(name) {
 	);
 }
 
+/** @type {RootConfig["apps"] | null} */
+let appConfigCache = null;
+
 /**
  * Get the list of apps, benchmarks, and implementations available.
- * @type {() => Promise<RootConfig["apps"]>}
+ * @type {(useCache?: boolean) => Promise<RootConfig["apps"]>}
  */
-export async function getAppConfig() {
+export async function getAppConfig(useCache = false) {
+	if (useCache && appConfigCache) return appConfigCache;
+
 	const appNames = (await readdir(appFilePath(), { withFileTypes: true }))
 		.filter((e) => e.isDirectory() && !shouldIgnore(e.name))
 		.map((e) => e.name);
@@ -50,6 +55,7 @@ export async function getAppConfig() {
 		};
 	}
 
+	appConfigCache = apps;
 	return apps;
 }
 
@@ -81,11 +87,16 @@ async function findDependencyDirs(searchPath, depName) {
 	return results;
 }
 
+/** @type {RootConfig["dependencies"] | null} */
+let depConfigCache = null;
+
 /**
  * Get the list of dependencies and the versions available for each.
- * @returns {Promise<RootConfig["dependencies"]>}
+ * @type {(useCache?: boolean) => Promise<RootConfig["dependencies"]>}
  */
-export async function getDepConfig() {
+export async function getDepConfig(useCache = false) {
+	if (useCache && depConfigCache) return depConfigCache;
+
 	const searchPaths = await readdir(depFilePath(), { withFileTypes: true });
 
 	/** Directories containing a `package.json` from `depFilePath()`, e.g. preact/latest */
@@ -109,5 +120,6 @@ export async function getDepConfig() {
 		dependencies[depName][version] = depDir;
 	}
 
+	depConfigCache = dependencies;
 	return dependencies;
 }

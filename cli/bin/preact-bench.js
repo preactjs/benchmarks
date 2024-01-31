@@ -3,13 +3,15 @@
 import inquirer from "inquirer";
 import sade from "sade";
 import { runBenchServer, runBenchmarks } from "../src/index.js";
-import { getDepConfig } from "../src/config.js";
+import { getAppConfig, getDepConfig } from "../src/config.js";
 import {
 	ensureArray,
 	makeDepVersion,
 	parseDepVersion,
 	versionSep,
 } from "../src/utils.js";
+
+const prompts = inquirer.createPromptModule();
 
 const IS_CI = process.env.CI === "true";
 const defaultBenchOptions = {
@@ -31,20 +33,8 @@ const defaultBenchOptions = {
 	port: 5173,
 };
 
-const prompts = inquirer.createPromptModule();
-
-/** @type {RootConfig["apps"] | undefined} */
-let appConfigCache;
-async function getAppConfigCached() {
-	if (!appConfigCache) {
-		const { getAppConfig } = await import("../src/config.js");
-		appConfigCache = await getAppConfig();
-	}
-	return appConfigCache;
-}
-
 async function promptBenchmarkFile() {
-	const appConfig = await getAppConfigCached();
+	const appConfig = await getAppConfig(true);
 
 	const { benchmarkFilePath } = await prompts([
 		{
@@ -70,7 +60,7 @@ async function promptBenchmarkFile() {
 
 /** @type {(benchmarkFile: string) => Promise<string | string[]>} */
 async function promptImpl(benchmarkFile) {
-	const appConfig = await getAppConfigCached();
+	const appConfig = await getAppConfig(true);
 	const appName = benchmarkFile.split("/")[1];
 
 	const { impl } = await prompts([
@@ -96,7 +86,7 @@ async function promptImpl(benchmarkFile) {
 
 /** @type {() => Promise<string[]>} */
 async function promptDependency() {
-	const depConfig = await getDepConfig();
+	const depConfig = await getDepConfig(true);
 
 	/** @type {string[][]} */
 	const depGroups = [];
@@ -165,74 +155,74 @@ async function promptDependency() {
 	return depGroups.map((group) => group.join(","));
 }
 
-/** @type {(benchmarkFile: string, opts: BenchmarkCLIOpts) => void} */
-function logBenchCommand(benchmarkFile, opts) {
+/** @type {(benchmarkFile: string, args: BenchmarkCLIArgs) => void} */
+function logBenchCommand(benchmarkFile, args) {
 	/** @type {Array<string | number>} */
 	let cli = ["preact-bench", "bench"];
 	if (benchmarkFile) {
 		cli.push(benchmarkFile);
 	}
 
-	if (opts.interactive !== defaultBenchOptions.interactive) {
+	if (args.interactive !== defaultBenchOptions.interactive) {
 		cli.push("--interactive");
 	}
 
-	if (opts.impl !== defaultBenchOptions.impl) {
-		if (Array.isArray(opts.impl)) {
-			opts.impl.forEach((impl) => {
+	if (args.impl !== defaultBenchOptions.impl) {
+		if (Array.isArray(args.impl)) {
+			args.impl.forEach((impl) => {
 				cli.push("-i");
 				cli.push(impl);
 			});
 		} else {
 			cli.push("-i");
-			cli.push(opts.impl);
+			cli.push(args.impl);
 		}
 	}
 
-	if (opts.dependency !== defaultBenchOptions.dependency) {
-		if (Array.isArray(opts.dependency)) {
-			opts.dependency.forEach((depGroup) => {
+	if (args.dependency !== defaultBenchOptions.dependency) {
+		if (Array.isArray(args.dependency)) {
+			args.dependency.forEach((depGroup) => {
 				cli.push("-d");
 				cli.push(depGroup);
 			});
 		} else {
 			cli.push("-d");
-			cli.push(opts.dependency);
+			cli.push(args.dependency);
 		}
 	}
 
-	if (opts["sample-size"] !== defaultBenchOptions["sample-size"]) {
+	if (args["sample-size"] !== defaultBenchOptions["sample-size"]) {
 		cli.push("-n");
-		cli.push(opts["sample-size"]);
+		cli.push(args["sample-size"]);
 	}
 
-	if (opts.horizon !== defaultBenchOptions.horizon) {
+	if (args.horizon !== defaultBenchOptions.horizon) {
 		cli.push("-h");
-		cli.push(opts.horizon);
+		cli.push(args.horizon);
 	}
 
-	if (opts.timeout !== defaultBenchOptions.timeout) {
+	if (args.timeout !== defaultBenchOptions.timeout) {
 		cli.push("-t");
-		cli.push(opts.timeout);
+		cli.push(args.timeout);
 	}
 
-	if (opts.trace !== defaultBenchOptions.trace) {
+	if (args.trace !== defaultBenchOptions.trace) {
 		cli.push("--trace");
 	}
 
-	if (opts.debug !== defaultBenchOptions.debug) {
+	if (args.debug !== defaultBenchOptions.debug) {
 		cli.push("--debug");
 	}
 
-	if (opts.browser !== defaultBenchOptions.browser) {
-		if (Array.isArray(opts.browser)) {
-			opts.browser.forEach((browser) => {
+	if (args.browser !== defaultBenchOptions.browser) {
+		if (Array.isArray(args.browser)) {
+			args.browser.forEach((browser) => {
 				cli.push("-b");
 				cli.push(browser);
 			});
 		} else {
 			cli.push("-b");
-			cli.push(opts.browser);
+			cli.push(args.browser);
 		}
 	}
 
@@ -242,40 +232,81 @@ function logBenchCommand(benchmarkFile, opts) {
 	console.log("=".repeat(40) + "\n");
 }
 
-/** @type {(benchmarkFile: string, opts: BenchmarkCLIOpts) => Promise<void>} */
-async function benchAction(benchmarkFile, opts) {
+/**
+ * @param {string} str
+ * @returns {BrowserConfig}
+ */
+function parseBrowserArg(str) {
+	// Source: https://github.com/Polymer/tachometer/blob/d4d5116acb2d7df18035ddc36f0a3a1730841a23/src/browser.ts#L100
+	let remoteUrl;
+	const at = str.indexOf("@");
+	if (at !== -1) {
+		remoteUrl = str.substring(at + 1);
+		str = str.substring(0, at);
+	}
+	const headless = str.endsWith("-headless");
+	if (headless === true) {
+		str = str.replace(/-headless$/, "");
+	}
+
+	/** @type {import('tachometer/lib/browser').BrowserName} */
+	// @ts-ignore
+	const name = str;
+
+	/** @type {BrowserConfig} */
+	const config = { name, headless };
+	if (remoteUrl !== undefined) {
+		config.remoteUrl = remoteUrl;
+	}
+
+	// Custom browser options
+	if (config.name == "chrome") {
+		config.addArguments = [
+			"--js-flags=--expose-gc",
+			"--enable-precise-memory-info",
+		];
+	}
+
+	return config;
+}
+
+/** @type {(args: BenchmarkCLIArgs) => BenchmarkConfig} */
+function parseBenchmarkCLIArgs(args) {
+	const selectedBrowser = Array.isArray(args.browser)
+		? args.browser.at(-1) ?? defaultBenchOptions.browser
+		: args.browser;
+
+	return {
+		...args,
+		depGroups: ensureArray(args.dependency)
+			.map((depGroup) => depGroup.split(","))
+			.map((depGroup) => depGroup.map((dep) => parseDepVersion(dep))),
+		implementations: ensureArray(args.impl),
+		browser: parseBrowserArg(selectedBrowser),
+	};
+}
+
+/** @type {(benchmarkFile: string, args: BenchmarkCLIArgs) => Promise<void>} */
+async function benchAction(benchmarkFile, args) {
 	if (
-		opts.interactive ||
+		args.interactive ||
 		!benchmarkFile ||
-		(!Array.isArray(opts.dependency) && !Array.isArray(opts.impl))
+		(!Array.isArray(args.dependency) && !Array.isArray(args.impl))
 	) {
 		if (!benchmarkFile) {
 			benchmarkFile = await promptBenchmarkFile();
 		}
 
-		if (!Array.isArray(opts.dependency) && !Array.isArray(opts.impl)) {
-			opts.impl = await promptImpl(benchmarkFile);
-			opts.dependency = await promptDependency();
+		if (!Array.isArray(args.dependency) && !Array.isArray(args.impl)) {
+			args.impl = await promptImpl(benchmarkFile);
+			args.dependency = await promptDependency();
 		}
 	}
 
-	// TODO: Consider ways to simplify this
-	const depGroups = ensureArray(opts.dependency)
-		.map((depGroup) => depGroup.split(","))
-		.map((depGroup) => depGroup.map((dep) => parseDepVersion(dep)));
+	logBenchCommand(benchmarkFile, args);
 
-	/** @type {BenchmarkActionConfig} */
-	const config = {
-		...opts,
-		depGroups,
-		implementations: ensureArray(opts.impl),
-		browser: Array.isArray(opts.browser)
-			? opts.browser.at(-1) ?? defaultBenchOptions.browser
-			: opts.browser,
-	};
-
-	logBenchCommand(benchmarkFile, opts);
-	await runBenchmarks(benchmarkFile, config);
+	const benchConfig = parseBenchmarkCLIArgs(args);
+	await runBenchmarks(benchmarkFile, benchConfig);
 }
 
 const prog = sade("preact-bench").version("0.0.0");
@@ -351,6 +382,6 @@ prog
 		"What port to run the benchmark server on",
 		defaultBenchOptions.port,
 	)
-	.action((opts) => runBenchServer({ hmr: true, port: opts.port }));
+	.action((args) => runBenchServer(true, args.port));
 
 prog.parse(process.argv);

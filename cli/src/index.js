@@ -5,7 +5,7 @@ import { createServer } from "vite";
 import { rootIndexPlugin } from "./plugins/rootIndexPlugin.js";
 import { repoRoot, resultsPath } from "./utils.js";
 import { dependencyPlugin } from "./plugins/dependencyPlugin.js";
-import { generateConfig } from "./tach.js";
+import { generateTachConfig } from "./tach.js";
 
 const require = createRequire(import.meta.url);
 
@@ -29,11 +29,8 @@ async function waitForExit(childProcess) {
 	});
 }
 
-/** @type {(opts?: {hmr?: boolean; port?: number;}) => Promise<import("vite").ViteDevServer>} */
-export async function runBenchServer({
-	hmr = undefined,
-	port = undefined,
-} = {}) {
+/** @type {(hmr?: boolean, port?: number) => Promise<import("vite").ViteDevServer>} */
+export async function runBenchServer(hmr, port) {
 	// TODO: Consider how in dev mode how to handle preparing dependencies...
 	const server = await createServer({
 		root: repoRoot(),
@@ -56,12 +53,15 @@ export async function runBenchServer({
 	return server;
 }
 
-/** @type {(benchmarkFile: string, options: BenchmarkActionConfig) => Promise<void>} */
-export async function runBenchmarks(benchmarkFile, options) {
+/** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<void>} */
+export async function runBenchmarks(benchmarkFile, benchConfig) {
 	await mkdir(resultsPath(), { recursive: true });
-	const { name, configPath } = await generateConfig(benchmarkFile, options);
+	const { name, configPath } = await generateTachConfig(
+		benchmarkFile,
+		benchConfig
+	);
 
-	const server = await runBenchServer({ hmr: false, port: options.port });
+	const server = await runBenchServer(false, benchConfig.port);
 
 	const tachArgs = [
 		require.resolve("tachometer/bin/tach.js"),

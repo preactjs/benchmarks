@@ -1,4 +1,5 @@
-interface BenchmarkCLIOpts {
+/** Raw CLI arguments parsed from the command line or received from command line prompting */
+interface BenchmarkCLIArgs {
 	interactive: boolean;
 	dependency: string | string[];
 	impl: string | string[];
@@ -16,7 +17,8 @@ type Version = string;
 type DepVersion = [DepName, Version];
 type DependencyGroup = DepVersion[];
 
-interface BenchmarkActionConfig {
+/** Config for running benchmarks. Typically parsed from the CLI args */
+interface BenchmarkConfig {
 	depGroups: DependencyGroup[];
 	implementations: string[];
 	"sample-size": number;
@@ -24,7 +26,7 @@ interface BenchmarkActionConfig {
 	timeout: number;
 	trace: boolean;
 	debug: boolean;
-	browser: string;
+	browser: BrowserConfig;
 	port: number;
 }
 
@@ -68,3 +70,16 @@ interface ImportMap {
 		};
 	};
 }
+
+/**
+ * Expected format of a top-level tachometer JSON config file.
+ * @see https://www.npmjs.com/package/tachometer#config-file
+ */
+type TachConfig = import("tachometer/lib/configfile").ConfigFile;
+type TachBenchmarkConfig = Required<TachConfig["benchmarks"][0]>;
+
+/** @see https://www.npmjs.com/package/tachometer#browsers */
+type BrowserConfig = Exclude<
+	TachBenchmarkConfig["browser"],
+	string | undefined
+>;
