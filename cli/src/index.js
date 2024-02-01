@@ -36,14 +36,21 @@ export async function runBenchServer(dev = false, port) {
 export async function runBenchmarks(benchmarkFile, benchConfig) {
 	await mkdir(resultsPath(), { recursive: true });
 
-	const server = await runBenchServer(false, benchConfig.port);
+	// TODO: Undo after implementing stats
+	//
+	// const server = await runBenchServer(false, benchConfig.port);
+	//
+	// let results;
+	// try {
+	// 	results = await runTach(benchmarkFile, benchConfig);
+	// } finally {
+	// 	await server.close();
+	// }
 
-	try {
-		const results = await runTach(benchmarkFile, benchConfig);
-		console.log();
+	let results = JSON.parse(
+		(await import("fs")).readFileSync("out/results.json", "utf-8")
+	);
 
-		await displayResults(results);
-	} finally {
-		await server.close();
-	}
+	console.log();
+	await displayResults(results);
 }

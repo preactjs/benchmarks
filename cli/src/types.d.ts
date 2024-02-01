@@ -84,5 +84,55 @@ type BrowserConfig = Exclude<
 	string | undefined
 >;
 
-type TachResults = import("tachometer/lib/stats").ResultStatsWithDifferences[];
+type TachResult = import("tachometer/lib/stats").ResultStatsWithDifferences;
 type TachFileResults = import("tachometer/lib/json-output").JsonOutputFile;
+
+interface BenchmarkResult {
+	fullName: string;
+	implementation: string;
+	depGroupId: string;
+	dependencies: DependencyGroup;
+	samples: number[];
+	stats: {
+		size: number;
+		mean: number;
+		meanCI: {
+			low: number;
+			high: number;
+		};
+		variance: number;
+		standardDeviation: number;
+		sparkline: string;
+	};
+}
+
+interface MeasurementResult {
+	name: string;
+	measurement: TachResults["result"]["measurement"];
+	results: BenchmarkResult[];
+}
+
+interface BenchmarkResults {
+	name: string;
+	measurements: MeasurementResult[];
+	browser: TachResult["result"]["browser"];
+}
+
+declare module "jstat" {
+	/** https://jstat.github.io/all.html#jStat.studentt.inv */
+	export const studentt: {
+		inv(p: number, dof: number): number;
+	};
+
+	/** https://jstat.github.io/all.html#randn */
+	export function randn(n: number, m: number): [number[]];
+
+	export const normal: {
+		/** https://jstat.github.io/all.html#jStat.normal.cdf */
+		cdf(x: number, mean: number, stdDev: number): number;
+		/** https://jstat.github.io/all.html#jStat.normal.pdf */
+		pdf(x: number, mean: number, stdDev: number): number;
+		/** https://jstat.github.io/all.html#jStat.normal.inv */
+		inv(p: number, mean: number, stdDev: number): number;
+	};
+}

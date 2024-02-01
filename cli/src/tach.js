@@ -151,14 +151,14 @@ async function waitForExit(childProcess) {
 	});
 }
 
-/** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<TachResults>} */
+/** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<TachResult[]>} */
 export async function runTach(benchmarkFile, benchConfig) {
 	const { name, configPath } = await generateTachConfig(
 		benchmarkFile,
 		benchConfig,
 	);
 
-	/** @type {TachResults | undefined} */
+	/** @type {TachResult[] | undefined} */
 	let results;
 
 	// Disable console.log while Tach is running to prevent the giant table from

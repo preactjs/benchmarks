@@ -73,7 +73,7 @@ export function getBenchmarkBaseName(benchmarkFile) {
 }
 
 /**
- * @typedef {{ fullName: string; baseName: string;  implId: string; depGroupId: string; dependencies: DependencyGroup; }} BenchmarkId
+ * @typedef {{ fullName: string; baseName: string;  implId: string; depGroupId: string; dependencies: DependencyGroup; measureName?: string; }} BenchmarkId
  * @type {(baseName: string, dependencies: DependencyGroup, implId: string) => BenchmarkId}
  */
 export function getBenchmarkId(baseName, dependencies, impl) {
@@ -92,12 +92,12 @@ export function getBenchmarkId(baseName, dependencies, impl) {
 
 /** @type {(benchId: string) => BenchmarkId} */
 export function parseBenchmarkId(benchId) {
-	const match = benchId.match(/^(.*) \((.*)\) \((.*)\)$/);
+	const match = benchId.match(/^(.*) \((.*)\) \((.*)\)/);
 	if (!match) {
 		throw new Error(`Invalid benchmark ID: ${benchId}`);
 	}
 
-	const [, baseName, implId, depGroupId] = match;
+	const [, baseName, implId, depGroupId, measureName] = match;
 	return {
 		fullName: benchId,
 		baseName,
@@ -107,6 +107,7 @@ export function parseBenchmarkId(benchId) {
 			const [name, version] = dep.split("@");
 			return [name, version];
 		}),
+		measureName,
 	};
 }
 

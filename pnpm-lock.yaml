@@ -53,12 +53,21 @@ importers:
       '@preact/benchmark-deps':
         specifier: workspace:^0.0.1
         version: link:../dependencies
+      d3-array:
+        specifier: ^3.2.4
+        version: 3.2.4
+      d3-scale:
+        specifier: ^4.0.2
+        version: 4.0.2
       del:
         specifier: ^7.1.0
         version: 7.1.0
       inquirer:
         specifier: ^9.2.13
         version: 9.2.13
+      jstat:
+        specifier: ^1.9.6
+        version: 1.9.6
       preact:
         specifier: ^10.19.3
         version: 10.19.3
@@ -1085,6 +1094,76 @@ packages:
     resolution: {integrity: sha512-SPu1Vnh8U5EnzpNOi1NDBL5jU5Rx7DVHr15DNg9LXDTAbQlAVAmEbVt16wZvEW9Fu9Qt4Ji8kmeCJ2B1+4rFTQ==}
     dev: false
 
+  /d3-array@3.2.4:
+    resolution:
+      {
+        integrity: sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg==,
+      }
+    engines: { node: ">=12" }
+    dependencies:
+      internmap: 2.0.3
+    dev: false
+
+  /d3-color@3.1.0:
+    resolution:
+      {
+        integrity: sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==,
+      }
+    engines: { node: ">=12" }
+    dev: false
+
+  /d3-format@3.1.0:
+    resolution:
+      {
+        integrity: sha512-YyUI6AEuY/Wpt8KWLgZHsIU86atmikuoOmCfommt0LYHiQSPjvX2AcFc38PX0CBpr2RCyZhjex+NS/LPOv6YqA==,
+      }
+    engines: { node: ">=12" }
+    dev: false
+
+  /d3-interpolate@3.0.1:
+    resolution:
+      {
+        integrity: sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==,
+      }
+    engines: { node: ">=12" }
+    dependencies:
+      d3-color: 3.1.0
+    dev: false
+
+  /d3-scale@4.0.2:
+    resolution:
+      {
+        integrity: sha512-GZW464g1SH7ag3Y7hXjf8RoUuAFIqklOAq3MRl4OaWabTFJY9PN/E1YklhXLh+OQ3fM9yS2nOkCoS+WLZ6kvxQ==,
+      }
+    engines: { node: ">=12" }
+    dependencies:
+      d3-array: 3.2.4
+      d3-format: 3.1.0
+      d3-interpolate: 3.0.1
+      d3-time: 3.1.0
+      d3-time-format: 4.1.0
+    dev: false
+
+  /d3-time-format@4.1.0:
+    resolution:
+      {
+        integrity: sha512-dJxPBlzC7NugB2PDLwo9Q8JiTR3M3e4/XANkreKSUxF8vvXKqm1Yfq4Q5dl8budlunRVlUUaDUgFt7eA8D6NLg==,
+      }
+    engines: { node: ">=12" }
+    dependencies:
+      d3-time: 3.1.0
+    dev: false
+
+  /d3-time@3.1.0:
+    resolution:
+      {
+        integrity: sha512-VqKjzBLejbSMT4IgbmVgDjpkYrNWUYJnbCGo874u7MMKIWsILRX+OpX/gTk8MqjpT1A/c6HY2dCA77ZN0lkQ2Q==,
+      }
+    engines: { node: ">=12" }
+    dependencies:
+      d3-array: 3.2.4
+    dev: false
+
   /date-fns@2.30.0:
     resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
     engines: {node: '>=0.11'}
@@ -1663,6 +1742,14 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 6.2.0
+    dev: false
+
+  /internmap@2.0.3:
+    resolution:
+      {
+        integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==,
+      }
+    engines: { node: ">=12" }
     dev: false
 
   /is-core-module@2.13.1:
