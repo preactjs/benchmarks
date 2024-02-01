@@ -14,14 +14,14 @@ export const depFilePath = (...args) => repoRoot("dependencies", ...args);
 export const appUrl = (...args) =>
 	path.posix.join(
 		toURLPath(appFilePath(...args)),
-		...args.map(encodeURIComponent)
+		...args.map(encodeURIComponent),
 	);
 
 /** @type {(...args: string[]) => string} */
 export const depUrl = (...args) =>
 	path.posix.join(
 		toURLPath(depFilePath(...args)),
-		...args.map(encodeURIComponent)
+		...args.map(encodeURIComponent),
 	);
 
 /** @type {(filePath: string) => string} */

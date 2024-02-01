@@ -17,7 +17,7 @@ require.extensions[".tsx"] = compileModule;
 require.extensions[".ts"] = compileModule;
 
 const pattern = new URLPattern(
-	"https://localhost:/apps/:appName/:benchmarkName"
+	"https://localhost:/apps/:appName/:benchmarkName",
 );
 
 const depImportPrefix = `/@dep/`;
@@ -143,7 +143,7 @@ export function dependencyPlugin() {
 			// Add the app import
 			const impl = params.get("impl") ?? "";
 			importMap.imports[implImportPrefix] = toURLPath(
-				require.resolve(repoRoot("apps", appName, impl))
+				require.resolve(repoRoot("apps", appName, impl)),
 			);
 
 			for (let [key, value] of params) {

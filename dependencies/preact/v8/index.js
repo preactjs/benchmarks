@@ -22,7 +22,7 @@ export function createRoot(rootDom) {
 			render(
 				vnode,
 				rootDom,
-				/** @type {Element} */ (rootDom.firstElementChild)
+				/** @type {Element} */ (rootDom.firstElementChild),
 			);
 		},
 	};

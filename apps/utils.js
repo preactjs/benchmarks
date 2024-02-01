@@ -19,7 +19,7 @@ export function afterFrameAsync() {
 			afterFrame((time) => {
 				promise = null;
 				resolve(time);
-			})
+			}),
 		);
 	}
 
@@ -60,7 +60,7 @@ export function markRunEnd(runId) {
 		performance.measure(
 			`run-${runId}`,
 			`run-${runId}-start`,
-			`run-${runId}-end`
+			`run-${runId}-end`,
 		);
 	});
 }
@@ -93,7 +93,7 @@ export function testElement(selector) {
 	const testElement = document.querySelector(selector);
 	if (testElement == null) {
 		throw new Error(
-			"Test failed. Rendering after one paint was not successful"
+			"Test failed. Rendering after one paint was not successful",
 		);
 	}
 }
@@ -107,7 +107,7 @@ export function testElementText(selector, expectedText) {
 
 	if (elm.textContent != expectedText) {
 		throw new Error(
-			`Element did not have expected text. Expected: '${expectedText}' Actual: '${elm.textContent}'`
+			`Element did not have expected text. Expected: '${expectedText}' Actual: '${elm.textContent}'`,
 		);
 	}
 }
@@ -117,7 +117,7 @@ export function testElementTextContains(selector, expectedText) {
 	const elm = getBySelector(selector);
 	if (!elm?.textContent?.includes(expectedText)) {
 		throw new Error(
-			`Element did not include expected text. Expected to include: '${expectedText}' Actual: '${elm.textContent}'`
+			`Element did not include expected text. Expected to include: '${expectedText}' Actual: '${elm.textContent}'`,
 		);
 	}
 }

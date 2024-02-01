@@ -6,6 +6,6 @@
     "jsxFragmentFactory": "Fragment",
     "noLib": false,
     "lib": ["ESNext"],
-    "types": ["@types/web", "../cli/src/types.d.ts"]
-  }
+    "types": ["@types/web", "../cli/src/types.d.ts"],
+  },
 }

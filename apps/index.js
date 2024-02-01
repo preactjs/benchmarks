@@ -133,7 +133,7 @@ function rerenderBenchmarks() {
 
 function rerenderImplementations() {
 	const implementations = Object.keys(
-		config.apps[appSelect.value].implementations
+		config.apps[appSelect.value].implementations,
 	);
 
 	implSelect.innerHTML = "";

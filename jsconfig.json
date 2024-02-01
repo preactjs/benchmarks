@@ -10,6 +10,6 @@
     // Prevent this jsconfig.json to be used to type-check files. Subfolders
     // need to specify their own jsconfig.json and include which libs (e.g. DOM
     // or Node) they should be compiled against.
-    "noLib": true
-  }
+    "noLib": true,
+  },
 }

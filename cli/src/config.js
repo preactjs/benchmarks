@@ -63,7 +63,7 @@ export async function getDepConfig() {
 		await Promise.all(
 			searchPaths
 				.filter((dep) => dep.isDirectory())
-				.map((dep) => findDependencyDirs(depFilePath(), dep.name))
+				.map((dep) => findDependencyDirs(depFilePath(), dep.name)),
 		)
 	).flat();
 
@@ -97,7 +97,7 @@ async function findDependencyDirs(searchPath, depName) {
 		if (subPath.isDirectory() && !shouldIgnore(subPath.name)) {
 			const result = await findDependencyDirs(
 				searchPath,
-				depName + "/" + subPath.name
+				depName + "/" + subPath.name,
 			);
 			if (result.length) results.push(...result);
 		}

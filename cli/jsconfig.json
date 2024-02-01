@@ -3,6 +3,6 @@
   "compilerOptions": {
     "noLib": false,
     "lib": ["ESNext"],
-    "types": ["@types/node"]
-  }
+    "types": ["@types/node"],
+  },
 }
