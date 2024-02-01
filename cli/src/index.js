@@ -48,7 +48,7 @@ export async function runBenchmarks(benchmarkFile, benchConfig) {
 	// }
 
 	let results = JSON.parse(
-		(await import("fs")).readFileSync("out/results.json", "utf-8")
+		(await import("fs")).readFileSync("out/results.json", "utf-8"),
 	);
 
 	console.log();
