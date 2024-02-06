@@ -1,5 +1,24 @@
+// Many of these routines are inspired by the TracerBench project. We write our
+// own here cuz their methods require exactly 2 sample groups (control &
+// experiment) and we may have more than two. Further, some of the data (e.g.
+// sparkline) doesn't require a comparison and is just a visualization on top of
+// a group samples.
+//
+// Originally from
+// https://github.com/TracerBench/tracerbench/blob/a0e2fd5af12caa153b34bd4b460cc6f98eb45b58/packages/stats/src/stats.ts
+//
+// TracerBench License: BSD 2-Clause "Simplified" License
+// https://github.com/TracerBench/tracerbench/blob/a0e2fd5af12caa153b34bd4b460cc6f98eb45b58/LICENSE.md
+//
+// We also take inspiration from the Tachometer project, by Google. We
+// re-implement some of the stats here in order to customize their display.
+//
+// Tachometer License: BSD 3-Clause "New" or "Revised" License
+// https://github.com/google/tachometer/blob/fc8fda9ffda9565c23d615553cfd59960b29aa86/LICENSE
+
 import { bin } from "d3-array";
 import { scaleLinear } from "d3-scale";
+import { computeDifference } from "tachometer/lib/stats.js";
 
 /** @type {(results: BenchmarkResults) => void} */
 export function computeStats(results) {
@@ -18,22 +37,15 @@ export function computeStats(results) {
 			console.log(result.implementation, result.depGroupId);
 
 			const samples = result.samples;
-			const size = samples.length;
-			const mean = sumOf(samples) / size;
-			// size - 1 due to https://en.wikipedia.org/wiki/Bessel%27s_correction
-			const variance = sumOf(samples, (n) => (n - mean) ** 2) / (size - 1);
-			const stdDev = Math.sqrt(variance);
-			const meanCI = { low: 0, high: 0 }; // TODO: Implement
+			result.stats.histogram = getSparkline(samples, sampleRange);
 
-			result.stats = {
-				...result.stats,
-				size,
-				mean,
-				variance,
-				standardDeviation: stdDev,
-				meanCI,
-				sparkline: getSparkline(samples, sampleRange),
-			};
+			// TODO: Verify confidence interval calc
+			// TODO: Add p-value, stat-sig, z-score(?)
+			// TODO: calculate a power metric & MDE
+
+			result.differences = measurement.results.map((other) =>
+				other === result ? null : computeDifference(other.stats, result.stats),
+			);
 
 			console.log(result.stats);
 		}
@@ -92,12 +104,4 @@ function getSparkline(samples, totalRange) {
 	});
 
 	return `${results.join("")}`;
-}
-
-/** @type {(n: number) => number} */
-const identity = (n) => n;
-
-/** @type {(numbers: number[], mapFn?: (n: number) => number) => number} */
-function sumOf(numbers, mapFn = identity) {
-	return numbers.reduce((sum, n) => sum + mapFn(n), 0);
 }

@@ -1,21 +1,5 @@
-// Many of these routines are inspired by the TracerBench project. We write our
-// own here cuz their methods require exactly 2 sample groups (control &
-// experiment) and we may have more than two. Further, some of the data (e.g.
-// sparkline) doesn't require a comparison and is just a visualization on top of
-// a group samples.
-//
-// Originally from
-// https://github.com/TracerBench/tracerbench/blob/a0e2fd5af12caa153b34bd4b460cc6f98eb45b58/packages/stats/src/stats.ts
-//
-// TracerBench License: BSD 2-Clause "Simplified" License
-// https://github.com/TracerBench/tracerbench/blob/a0e2fd5af12caa153b34bd4b460cc6f98eb45b58/LICENSE.md
-//
-// We also take inspiration from the Tachometer project, by Google. We
-// re-implement some of the stats here in order to customize their display.
-//
-// Tachometer License: BSD 3-Clause "New" or "Revised" License
-// https://github.com/google/tachometer/blob/fc8fda9ffda9565c23d615553cfd59960b29aa86/LICENSE
-
+import kleur from "kleur";
+import table from "table";
 import { computeStats } from "./stats.js";
 import { parseBenchmarkId } from "./utils.js";
 
@@ -87,17 +71,78 @@ function buildBenchmarkResults(tachResults) {
 			dependencies,
 			samples,
 			stats: {
-				size: samples.length,
-				mean: 0,
-				meanCI: { low: 0, high: 0 },
-				variance: 0,
-				standardDeviation: 0,
-				sparkline: "",
+				...tachResult.stats,
+				histogram: "",
 			},
+			differences: [],
 		});
 	}
 
 	computeStats(results);
 
 	return results;
+}
+
+/** @type {(measure: MeasurementResult) => any} */
+function buildTableForMeasurement(measure) {}
+
+/**
+ * Format a confidence interval as "[low, high]".
+ * @type {(ci: ConfidenceInterval, format: (n: number) => string) => string}
+ */
+function formatConfidenceInterval(ci, format) {
+	return `${format(ci.low)} ${kleur.gray("-")} ${format(ci.high)}`;
+}
+
+/**
+ * Prefix positive numbers with a red "+" and negative ones with a green "-".
+ * @type {(n: number, format: (n: number) => string) => string}
+ */
+function colorizeSign(n, format) {
+	if (n > 0) {
+		return kleur.red(kleur.bold("+")) + format(n);
+	} else if (n < 0) {
+		// Negate the value so that we don't get a double negative sign.
+		return kleur.green().bold("-") + format(-n);
+	} else {
+		return format(n);
+	}
+}
+
+/** @type {(difference: Difference) => string} */
+function formatDifference({ absolute, relative }) {
+	let word, rel, abs;
+	if (absolute.low > 0 && relative.low > 0) {
+		word = kleur.bold().red("slower");
+		rel = formatConfidenceInterval(relative, percent);
+		abs = formatConfidenceInterval(absolute, milli);
+	} else if (absolute.high < 0 && relative.high < 0) {
+		word = kleur.bold().green("faster");
+		rel = formatConfidenceInterval(negate(relative), percent);
+		abs = formatConfidenceInterval(negate(absolute), milli);
+	} else {
+		word = kleur.bold().blue("unsure");
+		rel = formatConfidenceInterval(relative, (n) => colorizeSign(n, percent));
+		abs = formatConfidenceInterval(absolute, (n) => colorizeSign(n, milli));
+	}
+
+	return `{word}\n${rel}\n${abs}`;
+}
+
+/** @type {(n: number) => string} */
+function percent(n) {
+	return (n * 100).toFixed(0) + "%";
+}
+
+/** @type {(n: number) => string} */
+function milli(n) {
+	return n.toFixed(2) + "ms";
+}
+
+/** @type {(ci: ConfidenceInterval) => ConfidenceInterval} */
+function negate(ci) {
+	return {
+		low: -ci.high,
+		high: -ci.low,
+	};
 }

@@ -86,6 +86,8 @@ type BrowserConfig = Exclude<
 
 type TachResult = import("tachometer/lib/stats").ResultStatsWithDifferences;
 type TachFileResults = import("tachometer/lib/json-output").JsonOutputFile;
+type Difference = import("tachometer/lib/stats").Difference;
+type ConfidenceInterval = import("tachometer/lib/stats").ConfidenceInterval;
 
 interface BenchmarkResult {
 	fullName: string;
@@ -93,17 +95,10 @@ interface BenchmarkResult {
 	depGroupId: string;
 	dependencies: DependencyGroup;
 	samples: number[];
-	stats: {
-		size: number;
-		mean: number;
-		meanCI: {
-			low: number;
-			high: number;
-		};
-		variance: number;
-		standardDeviation: number;
-		sparkline: string;
+	stats: import("tachometer/lib/stats.d.ts").SummaryStats & {
+		histogram: string;
 	};
+	differences: Array<Difference | null>;
 }
 
 interface MeasurementResult {

@@ -68,6 +68,9 @@ importers:
       jstat:
         specifier: ^1.9.6
         version: 1.9.6
+      kleur:
+        specifier: ^4.1.5
+        version: 4.1.5
       preact:
         specifier: ^10.19.3
         version: 10.19.3
@@ -77,6 +80,9 @@ importers:
       sade:
         specifier: ^1.8.1
         version: 1.8.1
+      table:
+        specifier: ^6.8.1
+        version: 6.8.1
       tachometer:
         specifier: ^0.7.0
         version: 0.7.0(patch_hash=le66nmxghhg5lyvsp5p73r7y5e)
@@ -1925,6 +1931,14 @@ packages:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
     dev: true
+
+  /kleur@4.1.5:
+    resolution:
+      {
+        integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==,
+      }
+    engines: { node: ">=6" }
+    dev: false
 
   /koa-bodyparser@4.4.1:
     resolution: {integrity: sha512-kBH3IYPMb+iAXnrxIhXnW+gXV8OTzCu8VPDqvcDHW9SQrbkHmqPQtiZwrltNmSq6/lpipHnT7k7PsjlVD7kK0w==}
