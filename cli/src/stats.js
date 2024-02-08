@@ -20,34 +20,28 @@ import { bin } from "d3-array";
 import { scaleLinear } from "d3-scale";
 import { computeDifference } from "tachometer/lib/stats.js";
 
-/** @type {(results: BenchmarkResults) => void} */
+/** @type {(results: BenchmarkResult[]) => void} */
 export function computeStats(results) {
-	for (let measurement of results.measurements) {
-		console.log();
-		console.log("=".repeat(40));
-		console.log("measurement:", measurement.name);
-
-		const allSamples = measurement.results.flatMap((m) => m.samples);
+	for (let benchmarkResult of results) {
+		const allSamples = benchmarkResult.variations.flatMap((m) => m.samples);
 		const sampleRange = {
 			min: Math.min(...allSamples),
 			max: Math.max(...allSamples),
 		};
 
-		for (let result of measurement.results) {
-			console.log(result.implementation, result.depGroupId);
-
-			const samples = result.samples;
-			result.stats.histogram = getSparkline(samples, sampleRange);
+		for (let variation of benchmarkResult.variations) {
+			const samples = variation.samples;
+			variation.stats.histogram = getSparkline(samples, sampleRange);
 
 			// TODO: Verify confidence interval calc
 			// TODO: Add p-value, stat-sig, z-score(?)
 			// TODO: calculate a power metric & MDE
 
-			result.differences = measurement.results.map((other) =>
-				other === result ? null : computeDifference(other.stats, result.stats),
+			variation.differences = benchmarkResult.variations.map((other) =>
+				other === variation
+					? null
+					: computeDifference(other.stats, variation.stats),
 			);
-
-			console.log(result.stats);
 		}
 	}
 }
@@ -79,7 +73,6 @@ function getHistogram(range, a) {
 function getSparkline(samples, totalRange) {
 	const sortedSamples = [...samples].sort((a, b) => a - b);
 	const histogram = getHistogram(totalRange, sortedSamples);
-	console.log(histogram);
 
 	const min = Math.min(...histogram);
 	const max = Math.max(...histogram);

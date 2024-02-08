@@ -88,8 +88,12 @@ type TachResult = import("tachometer/lib/stats").ResultStatsWithDifferences;
 type TachFileResults = import("tachometer/lib/json-output").JsonOutputFile;
 type Difference = import("tachometer/lib/stats").Difference;
 type ConfidenceInterval = import("tachometer/lib/stats").ConfidenceInterval;
+type BrowserInfo = TachResult["result"]["browser"];
 
-interface BenchmarkResult {
+/**
+ * The values & stats for one variation (implementation + dependencies) of a benchmark
+ */
+interface VariationResult {
 	fullName: string;
 	implementation: string;
 	depGroupId: string;
@@ -101,16 +105,22 @@ interface BenchmarkResult {
 	differences: Array<Difference | null>;
 }
 
-interface MeasurementResult {
-	name: string;
-	measurement: TachResults["result"]["measurement"];
-	results: BenchmarkResult[];
+/**
+ * The results of a one measurement from one benchmark. It contains the results
+ * of each variation run
+ */
+interface BenchmarkResult {
+	benchName: string;
+	browser: BrowserInfo;
+	measurement: TachResult["result"]["measurement"];
+	variations: VariationResult[];
 }
 
-interface BenchmarkResults {
-	name: string;
-	measurements: MeasurementResult[];
-	browser: TachResult["result"]["browser"];
+interface Dimension {
+	/** The label of the dimension. */
+	label: string;
+	format: (n: VariationResult) => string;
+	tableConfig?: import("table").ColumnUserConfig;
 }
 
 declare module "jstat" {
