@@ -1,25 +1,23 @@
-import { createElement, render, Component } from "preact";
+import { Main } from "./components.jsx";
+import { createRoot, createElement } from "preact";
 
-class App extends Component {
-	constructor() {
-		super();
-		this.state = { count: 0 };
-	}
-	render() {
-		return (
-			<div>
-				Count: {this.state.count}{" "}
-				<button
-					type="button"
-					onClick={() => this.setState({ count: this.state.count + 1 })}
-				>
-					Add one
-				</button>
-			</div>
-		);
-	}
+/**
+ * @param {HTMLElement} rootDom
+ */
+export function render(rootDom) {
+	createRoot(rootDom).render(createElement(Main));
+
+	/** @type {Main} */
+	// @ts-ignore
+	const app = window.app;
+	return {
+		run: app.run.bind(app),
+		add: app.add.bind(app),
+		update: app.update.bind(app),
+		select: app.select.bind(app),
+		delete: app.delete.bind(app),
+		runLots: app.runLots.bind(app),
+		clear: app.clear.bind(app),
+		swapRows: app.swapRows.bind(app),
+	};
 }
-
-const root = document.createElement("div");
-document.body.appendChild(root);
-render(<App />, root);
