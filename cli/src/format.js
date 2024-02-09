@@ -1,6 +1,6 @@
 import kleur from "kleur";
 import table from "table";
-import { makeDepVersion } from "./utils.js";
+import { makeBenchmarkLabel, makeDepGroupLabel } from "./utils.js";
 
 /** @type {(benchmarkResult: BenchmarkResult, fixedDimensions: Dimension[]) => string} */
 function getTableTitle(benchmarkResult, fixedDimensions) {
@@ -88,16 +88,13 @@ export function buildTable(benchmarkResults) {
 			for (let i = 0; i < benchmarkResult.variations.length; i++) {
 				const variation = benchmarkResult.variations[i];
 
-				let label = "";
-				if (includeImpl) {
-					label += variation.implementation + "\n";
-				}
-				if (includeDepGroup) {
-					label += makeDepGroupLabel(variation.dependencies);
-				}
-
 				vsDimensions.push({
-					label: "vs " + label.trim(),
+					label:
+						"vs " +
+						makeBenchmarkLabel(
+							includeImpl ? variation.implementation : null,
+							includeDepGroup ? variation.dependencies : null,
+						),
 					format: (r) => {
 						const diff = r.differences[i];
 						if (!diff) return kleur.gray("\n-");
@@ -120,13 +117,6 @@ export function buildTable(benchmarkResults) {
 			horizontalTerminalTable(tableDimensions, benchmarkResult.variations),
 		);
 	}
-}
-
-/** @type {(depGroup: DependencyGroup) => string} */
-function makeDepGroupLabel(depGroup) {
-	return depGroup
-		.map(([name, version]) => makeDepVersion(name, version))
-		.join("\n");
 }
 
 /** @type {(dimensions: Dimension[], results: VariationResult[]) => string} */

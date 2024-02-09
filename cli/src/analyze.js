@@ -1,7 +1,10 @@
 import { existsSync } from "fs";
 import { readFile, readdir } from "fs/promises";
-import prompts from "prompts";
-import { baseTraceLogDir, frameworks } from "./config.js";
+import {
+	baseTraceLogDir,
+	makeBenchmarkLabel,
+	parseBenchmarkId,
+} from "./utils.js";
 
 import { summaryStats, computeDifferences } from "tachometer/lib/stats.js";
 import {
@@ -35,17 +38,18 @@ const toTrack = new Set([
  * @param {Map<string, T | T[]>} results
  */
 function addToGrouping(grouping, results) {
-	for (let [group, data] of results.entries()) {
-		if (grouping.has(group)) {
+	for (let [groupName, data] of results.entries()) {
+		const group = grouping.get(groupName);
+		if (group) {
 			if (Array.isArray(data)) {
-				grouping.get(group).push(...data);
+				group.push(...data);
 			} else {
-				grouping.get(group).push(data);
+				group.push(data);
 			}
 		} else if (Array.isArray(data)) {
-			grouping.set(group, data);
+			grouping.set(groupName, data);
 		} else {
-			grouping.set(group, [data]);
+			grouping.set(groupName, [data]);
 		}
 	}
 }
@@ -58,8 +62,9 @@ function addToGrouping(grouping, results) {
  * @param  {...V} values
  */
 function addToMapArray(map, key, ...values) {
-	if (map.has(key)) {
-		map.get(key).push(...values);
+	const arr = map.get(key);
+	if (arr) {
+		arr.push(...values);
 	} else {
 		map.set(key, values);
 	}
@@ -74,8 +79,9 @@ function addToMapArray(map, key, ...values) {
  * @param {V} value
  */
 function setInMapArray(map, key, index, value) {
-	if (map.has(key)) {
-		map.get(key)[index] = value;
+	const arr = map.get(key);
+	if (arr) {
+		arr[index] = value;
 	} else {
 		map.set(key, [value]);
 	}
@@ -131,7 +137,14 @@ async function getStatsFromLogs(version, logPaths, getThreadId, trackEventsIn) {
 						end: log.ts,
 					});
 				} else if (log.ph == "e") {
-					parentLogs.find((l) => l.id == log.name).end = log.ts;
+					const parentLog = parentLogs.find((l) => l.id == log.name);
+					if (parentLog) {
+						parentLog.end = log.ts;
+					} else {
+						console.warn(
+							`Could not find parent log for ${log.name} in ${logPath}`,
+						);
+					}
 				} else {
 					throw new Error(`Unsupported parent log type: ${log.ph}`);
 				}
@@ -201,6 +214,8 @@ async function getStatsFromLogs(version, logPaths, getThreadId, trackEventsIn) {
 					durationBeginEvents.set(log.name, log);
 				} else {
 					const beginEvent = durationBeginEvents.get(log.name);
+					if (!beginEvent) throw new Error(`No begin event for ${log.name}`);
+
 					const endEvent = log;
 					durationBeginEvents.delete(log.name);
 
@@ -263,73 +278,42 @@ function isDurationLog(log) {
 	return (
 		(log.ph == "b" || log.ph == "e") &&
 		log.cat == "blink.user_timing" &&
-		log.scope == "blink.user_timing" &&
 		// Tachometer may kill the tab after seeing the duration measure before
 		// the tab can log it to the trace file
 		(log.name == "run-final" || log.name == "duration")
 	);
 }
 
-/** @param {string} requestedBench */
-export async function analyze(requestedBench) {
-	// const frameworkNames = await readdir(p('logs'));
-	const frameworkNames = frameworks.map((f) => f.label);
-	const listAtEnd = [
-		"average run duration",
-		"Sum of V8 runtime",
-		"In run-final, Sum of V8 runtime",
-		"In duration, Sum of V8 runtime",
-		"duration",
-	];
+const listAtEnd = [
+	"average run duration",
+	"Sum of V8 runtime",
+	"In run-final, Sum of V8 runtime",
+	"In duration, Sum of V8 runtime",
+	"duration",
+];
 
-	if (!existsSync(baseTraceLogDir())) {
-		console.log(
-			`Could not find log directory: "${baseTraceLogDir()}". Did you run the benchmarks?`,
-		);
+/** @param {string} selectedBench */
+export async function analyze(selectedBench) {
+	const benchLogDir = baseTraceLogDir(selectedBench);
+	if (!existsSync(benchLogDir)) {
+		console.error(`No logs found for ${selectedBench}`);
 		return;
 	}
 
-	const benchmarkNames = await readdir(baseTraceLogDir());
-	/** @type {string} */
-	let selectedBench;
-	if (benchmarkNames.length == 0) {
-		console.log(`No benchmarks or results found in "${baseTraceLogDir()}".`);
-		return;
-	} else if (requestedBench) {
-		if (benchmarkNames.includes(requestedBench)) {
-			selectedBench = requestedBench;
-		} else {
-			console.log(
-				`Could not find benchmark "${requestedBench}". Available benchmarks:`,
-			);
-			console.log(benchmarkNames);
-			return;
-		}
-	} else if (benchmarkNames.length == 1) {
-		selectedBench = benchmarkNames[0];
-	} else {
-		selectedBench = (
-			await prompts({
-				type: "select",
-				name: "value",
-				message: "Which benchmark's results would you like to analyze?",
-				choices: benchmarkNames.map((name) => ({
-					title: name,
-					value: name,
-				})),
-			})
-		).value;
-	}
+	const benchmarkNames = (await readdir(benchLogDir, { withFileTypes: true }))
+		.filter((dirent) => dirent.isDirectory())
+		.map((dirent) => dirent.name);
 
 	/** @type {Map<string, ResultStats[]>} */
 	const resultStatsMap = new Map();
-	for (let framework of frameworkNames) {
-		const logDir = baseTraceLogDir(selectedBench, framework);
+	for (let benchName of benchmarkNames) {
+		const { implId, dependencies } = parseBenchmarkId(benchName);
+		const logDir = baseTraceLogDir(selectedBench, benchName);
 
 		let logFilePaths;
 		try {
 			logFilePaths = (await readdir(logDir)).map((fn) =>
-				baseTraceLogDir(selectedBench, framework, fn),
+				baseTraceLogDir(selectedBench, benchName, fn),
 			);
 		} catch (e) {
 			// If directory doesn't exist or we fail to read it, just skip
@@ -337,7 +321,7 @@ export async function analyze(requestedBench) {
 		}
 
 		const resultStats = await getStatsFromLogs(
-			framework,
+			makeBenchmarkLabel(implId, dependencies),
 			logFilePaths,
 			getDurationThread,
 			isDurationLog,
@@ -358,8 +342,9 @@ export async function analyze(requestedBench) {
 	}
 
 	for (let key of listAtEnd) {
-		if (resultStatsMap.has(key)) {
-			logDifferences(key, resultStatsMap.get(key));
+		const results = resultStatsMap.get(key);
+		if (results) {
+			logDifferences(key, results);
 		}
 	}
 }

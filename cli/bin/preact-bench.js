@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 
+import { existsSync } from "node:fs";
+import { readdir } from "node:fs/promises";
 import inquirer from "inquirer";
 import sade from "sade";
+import { analyze } from "../src/analyze.js";
 import { runBenchServer, runBenchmarks } from "../src/index.js";
 import { getAppConfig, getDepConfig } from "../src/config.js";
 import {
+	baseTraceLogDir,
 	ensureArray,
 	makeDepVersion,
 	parseDepVersion,
@@ -309,6 +313,51 @@ async function benchAction(benchmarkFile, args) {
 	await runBenchmarks(benchmarkFile, benchConfig);
 }
 
+/** @type {(requestedBench?: string) => Promise<void>} */
+async function analyzeAction(requestedBench) {
+	if (!existsSync(baseTraceLogDir())) {
+		console.log(
+			`Could not find log directory: "${baseTraceLogDir()}". Did you run the benchmarks?`,
+		);
+		return;
+	}
+
+	const benchmarkNames = await readdir(baseTraceLogDir());
+
+	/** @type {string} */
+	let selectedBench;
+	if (benchmarkNames.length == 0) {
+		console.log(`No benchmarks or results found in "${baseTraceLogDir()}".`);
+		return;
+	} else if (requestedBench) {
+		if (benchmarkNames.includes(requestedBench)) {
+			selectedBench = requestedBench;
+		} else {
+			console.log(
+				`Could not find benchmark "${requestedBench}". Available benchmarks:`,
+			);
+			console.log(benchmarkNames);
+			return;
+		}
+	} else if (benchmarkNames.length == 1) {
+		selectedBench = benchmarkNames[0];
+	} else {
+		selectedBench = (
+			await prompts({
+				type: "list",
+				name: "value",
+				message: "Which benchmark's results would you like to analyze?",
+				choices: benchmarkNames.map((name) => ({
+					title: name,
+					value: name,
+				})),
+			})
+		).value;
+	}
+
+	await analyze(selectedBench);
+}
+
 const prog = sade("preact-bench").version("0.0.0");
 
 prog
@@ -384,5 +433,18 @@ prog
 	)
 	.option("--hmr", "Enables HMR in the browser", false)
 	.action((args) => runBenchServer(true, args.hmr, args.port));
+
+// Test
+// - (no args)
+// - 02_replace1k
+prog
+	.command("analyze [benchmark]")
+	.describe(
+		"Analyze the trace logs created by running benchmarks with the --trace flag",
+	)
+	.example("analyze")
+	.example("analyze 02_replace1k")
+	.example("analyze many_updates")
+	.action(analyzeAction);
 
 prog.parse(process.argv);

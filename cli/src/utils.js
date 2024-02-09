@@ -123,3 +123,25 @@ export function parseDepVersion(version) {
 export function makeDepVersion(name, version) {
 	return `${name}${versionSep}${version}`;
 }
+
+/** @type {(dependencies: DependencyGroup) => string} */
+export function makeDepGroupLabel(dependencies) {
+	return dependencies
+		.map(([name, version]) => makeDepVersion(name, version))
+		.join("\n");
+}
+
+/** @type {(implementation: string | null, depGroup: DependencyGroup | null) => string} */
+export function makeBenchmarkLabel(implementation, depGroup) {
+	if (!implementation && !depGroup) {
+		throw new Error(
+			"At least one of implementation or depGroup must be provided",
+		);
+	}
+
+	let label = "";
+	if (implementation) label += implementation + "\n";
+	if (depGroup) label += makeDepGroupLabel(depGroup);
+
+	return label;
+}
