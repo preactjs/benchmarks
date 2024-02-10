@@ -29,9 +29,15 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
     devDependencies:
+      "@preact/signals":
+        specifier: ^1.2.2
+        version: 1.2.2(preact@10.19.4)
       "@types/web":
         specifier: ^0.0.135
         version: 0.0.135
+      preact:
+        specifier: ^10.19.4
+        version: 10.19.4
 
   cli:
     dependencies:
@@ -410,7 +416,6 @@ packages:
       {
         integrity: sha512-dE6f+WCX5ZUDwXzUIWNMhhglmuLpqJhuy3X3xHrhZYI0Hm2LyQwOu0l9mdPiWrVNsE+Q7txOnJPgtIqHCYoBVA==,
       }
-    dev: false
 
   /@preact/signals@1.1.3(preact@10.19.4):
     resolution:
@@ -434,7 +439,6 @@ packages:
     dependencies:
       "@preact/signals-core": 1.5.1
       preact: 10.19.4
-    dev: false
 
   /@rollup/rollup-android-arm-eabi@4.9.5:
     resolution:
@@ -1244,7 +1248,6 @@ packages:
       {
         integrity: sha512-dwaX5jAh0Ga8uENBX1hSOujmKWgx9RtL80KaKUFLc6jb4vCEAc3EeZ0rnQO/FO4VgjfPMfoLFWnNG8bHuZ9VLw==,
       }
-    dev: false
 
   /preact@8.5.3:
     resolution:

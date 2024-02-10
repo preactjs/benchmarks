@@ -6,9 +6,8 @@
   "description": "Repository of benchmarks for Preact",
   "scripts": {
     "format": "prettier --no-error-on-unmatched-pattern --write **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
-    "lint": "conc npm:lint:*",
+    "lint": "pnpm lint:format && pnpm tsc",
     "lint:format": "prettier --no-error-on-unmatched-pattern --check **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
-    "lint:tsc": "tsc -p jsconfig.json",
     "lint-staged": "lint-staged",
     "prepare": "husky install",
     "start": "node cli/bin/preact-bench.js dev",
