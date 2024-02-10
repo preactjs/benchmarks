@@ -1,3 +1,5 @@
+// This file powers the app & benchmark selection form on the /index.html page.
+
 // To test:
 // - Changing app updates benchmarks & implementations
 // - Changing app or benchmark updates form action
