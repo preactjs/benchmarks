@@ -7,15 +7,6 @@ settings:
 importers:
   .:
     devDependencies:
-      "@preact/benchmark-apps":
-        specifier: workspace:^0.0.1
-        version: link:apps
-      "@preact/benchmark-cli":
-        specifier: workspace:^0.0.1
-        version: link:cli
-      "@preact/benchmark-deps":
-        specifier: workspace:^0.0.1
-        version: link:dependencies
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -94,13 +85,13 @@ importers:
     dependencies:
       "@preact/signals":
         specifier: latest
-        version: 1.2.2(preact@10.19.3)
+        version: 1.2.2(preact@10.19.4)
 
   dependencies/@preact/signals/prev-minor:
     dependencies:
       "@preact/signals":
         specifier: 1.1.3
-        version: 1.1.3(preact@10.19.3)
+        version: 1.1.3(preact@10.19.4)
 
   dependencies/preact/latest:
     dependencies:
@@ -421,7 +412,7 @@ packages:
       }
     dev: false
 
-  /@preact/signals@1.1.3(preact@10.19.3):
+  /@preact/signals@1.1.3(preact@10.19.4):
     resolution:
       {
         integrity: sha512-N09DuAVvc90bBZVRwD+aFhtGyHAmJLhS3IFoawO/bYJRcil4k83nBOchpCEoS0s5+BXBpahgp0Mjf+IOqP57Og==,
@@ -430,10 +421,10 @@ packages:
       preact: 10.x
     dependencies:
       "@preact/signals-core": 1.5.1
-      preact: 10.19.3
+      preact: 10.19.4
     dev: false
 
-  /@preact/signals@1.2.2(preact@10.19.3):
+  /@preact/signals@1.2.2(preact@10.19.4):
     resolution:
       {
         integrity: sha512-ColCqdo4cRP18bAuIR4Oik5rDpiyFtPIJIygaYPMEAwTnl4buWkBOflGBSzhYyPyJfKpkwlekrvK+1pzQ2ldWw==,
@@ -442,7 +433,7 @@ packages:
       preact: 10.x
     dependencies:
       "@preact/signals-core": 1.5.1
-      preact: 10.19.3
+      preact: 10.19.4
     dev: false
 
   /@rollup/rollup-android-arm-eabi@4.9.5:
@@ -1245,6 +1236,13 @@ packages:
     resolution:
       {
         integrity: sha512-nHHTeFVBTHRGxJXKkKu5hT8C/YWBkPso4/Gad6xuj5dbptt9iF9NZr9pHbPhBrnT2klheu7mHTxTZ/LjwJiEiQ==,
+      }
+    dev: false
+
+  /preact@10.19.4:
+    resolution:
+      {
+        integrity: sha512-dwaX5jAh0Ga8uENBX1hSOujmKWgx9RtL80KaKUFLc6jb4vCEAc3EeZ0rnQO/FO4VgjfPMfoLFWnNG8bHuZ9VLw==,
       }
     dev: false
 
