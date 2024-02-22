@@ -25,6 +25,8 @@ function _random(max) {
  * @property {Data} data
  */
 
+/** @typedef {{ store?: Store }} MainProps */
+
 export class Store {
 	constructor() {
 		/** @type {Data[]} */

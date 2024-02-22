@@ -1,7 +1,14 @@
-import { render as preactRender, createElement, Component } from "preact";
+import {
+	render as preactRender,
+	hydrate as preactHydrate,
+	createElement,
+	Component,
+} from "preact";
 import { Store } from "../_shared/store.js";
 
 /** @typedef {import('../_shared/store.js').RowProps} RowProps */
+/** @typedef {import('../_shared/store.js').MainProps} MainProps */
+/** @typedef {import("../_shared/store").TableApp} TableApp */
 
 /** @extends {Component<RowProps>} */
 class Row extends Component {
@@ -48,8 +55,9 @@ class Row extends Component {
 	}
 }
 
+/** @extends {Component<MainProps>} */
 export class Main extends Component {
-	/** @param {{store?: Store}} props */
+	/** @param {MainProps} props */
 	constructor(props) {
 		super(props);
 		this.state = { store: props.store ?? new Store() };
@@ -118,9 +126,28 @@ export class Main extends Component {
 	}
 }
 
-/** @param {HTMLElement} rootDom */
-export function render(rootDom) {
-	preactRender(<Main />, rootDom);
+/** @type {(rootDom: HTMLElement, props: MainProps ) => TableApp} */
+export function render(rootDom, props) {
+	preactRender(<Main {...props} />, rootDom);
+
+	/** @type {import('../_shared/store.js').TableApp} */
+	// @ts-expect-error
+	const app = window.app;
+	return {
+		run: app.run.bind(app),
+		add: app.add.bind(app),
+		update: app.update.bind(app),
+		select: app.select.bind(app),
+		delete: app.delete.bind(app),
+		runLots: app.runLots.bind(app),
+		clear: app.clear.bind(app),
+		swapRows: app.swapRows.bind(app),
+	};
+}
+
+/** @type {(rootDom: HTMLElement, props: MainProps ) => TableApp} */
+export function hydrate(rootDom, props) {
+	preactHydrate(<Main {...props} />, rootDom);
 
 	/** @type {import('../_shared/store.js').TableApp} */
 	// @ts-expect-error

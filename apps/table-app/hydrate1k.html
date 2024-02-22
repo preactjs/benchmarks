@@ -3,22 +3,136 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Hydrate 1000k elements</title>
+		<title>hydrate 1k table rows</title>
+		<meta name="description" content="hydrating 1,000 rows" />
+		<style>
+			.preloadicon {
+				display: none;
+			}
+			.glyphicon-remove:before {
+				content: "⨯";
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Hydrate 1k</h1>
+		<template id="template"></template>
 		<script type="module">
-			import "@impl";
-			import { measureName, measureMemory } from "../utils.js";
+			import {
+				measureName,
+				measureMemory,
+				testElementText,
+				afterFrame,
+				afterFrameAsync,
+			} from "../utils.js";
+			import { Store } from "./_shared/store.js";
+			import { render, hydrate } from "@impl";
 
-			function delay(ms) {
-				return new Promise((resolve) => setTimeout(resolve, ms));
+			/** @type {HTMLTemplateElement} */
+			const template = document.getElementById("template");
+
+			const firstRowSel = "tr:first-child > td:first-child";
+			const lastRowSel = "tr:last-child > td:first-child";
+
+			const baseStore = new Store();
+			baseStore.run();
+
+			/**
+			 * Delete the old hydrate root and create a new one with a clone of the
+			 * template's content
+			 */
+			function setupHydrateRoot() {
+				const hydrateRootId = "hydrate-root";
+				let hydrateRoot = document.getElementById(hydrateRootId);
+				if (hydrateRoot) {
+					hydrateRoot.remove();
+				}
+
+				hydrateRoot = document.createElement("div");
+				hydrateRoot.id = hydrateRootId;
+				hydrateRoot.appendChild(template.content.cloneNode(true));
+				document.body.appendChild(hydrateRoot);
+				return hydrateRoot;
 			}
 
-			performance.mark("start");
-			await delay(Math.floor(Math.random() * 250));
-			performance.measure(measureName, "start");
-			measureMemory();
+			/** Render the app inside the template tag to initialize it to be cloned later */
+			async function initializeTemplate() {
+				render(template.content, { store: baseStore });
+				await afterFrameAsync();
+			}
+
+			/**
+			 * Click the second row's remove link and ensure the number of rows before
+			 * and after the click are as expected
+			 */
+			async function clickRemove(root, label, expectedBefore, expectedAfter) {
+				let rowCount = root.querySelectorAll("tr").length;
+				if (rowCount !== expectedBefore) {
+					throw new Error(
+						`${label}: Incorrect number of rows before remove click. Expected ${expectedBefore} but got ${rowCount}`,
+					);
+				}
+
+				const removeLink = root.querySelector(
+					"tr:nth-child(2) td:nth-child(3) a",
+				);
+				removeLink.click();
+				await afterFrameAsync();
+
+				rowCount = root.querySelectorAll("tr").length;
+				if (rowCount !== expectedAfter) {
+					throw new Error(
+						`${label}: Incorrect number of rows after after remove click. Expected ${expectedAfter} but got ${rowCount}`,
+					);
+				}
+			}
+
+			async function warmupRun(i) {
+				// Test out hydrate and ensure it works
+				const hydrateRoot = setupHydrateRoot();
+
+				// Verify initial hydrate root isn't already hydrated and is static
+				testElementText(firstRowSel, "1");
+				testElementText(lastRowSel, "1000");
+				await clickRemove(hydrateRoot, `WARMUP ${i} - prehydrate`, 1000, 1000);
+
+				const store = new Store();
+				store.data = baseStore.data.slice();
+				hydrate(hydrateRoot, { store });
+
+				// Verify hydrate has correct markup and is properly hydrated
+				testElementText(firstRowSel, "1");
+				testElementText(lastRowSel, "1000");
+				await clickRemove(hydrateRoot, `WARMUP ${i} - posthydrate`, 1000, 999);
+			}
+
+			function timedRun() {
+				afterFrame(function () {
+					performance.mark("stop");
+					performance.measure(measureName, "start", "stop");
+
+					measureMemory();
+				});
+
+				const hydrateRoot = setupHydrateRoot();
+				const store = new Store();
+				store.data = baseStore.data.slice();
+
+				performance.mark("start");
+				hydrate(hydrateRoot, { store });
+			}
+
+			async function main() {
+				const WARMUP_COUNT = 5;
+				for (let i = 0; i < WARMUP_COUNT; i++) {
+					await warmupRun(i);
+				}
+
+				await afterFrameAsync();
+
+				timedRun();
+			}
+
+			initializeTemplate().then(main);
 		</script>
 	</body>
 </html>

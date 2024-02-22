@@ -1,9 +1,15 @@
-import { createElement, render as preactRender } from "preact";
+import {
+	createElement,
+	render as preactRender,
+	hydrate as preactHydrate,
+} from "preact";
 import { useState, useCallback, useRef, useMemo } from "preact/hooks";
 import { Store } from "../_shared/store";
 
+/** @typedef {import("../_shared/store").TableApp} TableApp */
 /** @typedef {import('../_shared/store.js').Data} Data */
 /** @typedef {import('../_shared/store.js').RowProps} RowProps */
+/** @typedef {import('../_shared/store.js').MainProps} MainProps */
 
 /** @param {RowProps} props */
 function Row({ styleClass, onClick, onDelete, data }) {
@@ -34,14 +40,15 @@ function Row({ styleClass, onClick, onDelete, data }) {
 /** @type {import('../_shared/store.js').TableApp} */
 let app;
 
-function Main() {
+/** @param {MainProps} props */
+function Main({ store: initialStore }) {
 	const [, setState] = useState({});
 	const forceUpdate = useCallback(() => setState({}), []);
 
 	/** @type {preact.RefObject<Store | undefined>} */
 	const storeRef = useRef();
 	if (storeRef.current == null) {
-		storeRef.current = new Store();
+		storeRef.current = initialStore ?? new Store();
 	}
 
 	const store = storeRef.current;
@@ -108,9 +115,14 @@ function Main() {
 	);
 }
 
-/** @param {HTMLElement} rootDom */
-export function render(rootDom) {
-	preactRender(<Main />, rootDom);
+/** @type {(rootDom: HTMLElement, props: MainProps ) => TableApp} */
+export function render(rootDom, props) {
+	preactRender(<Main {...props} />, rootDom);
+	return app;
+}
 
+/** @type {(rootDom: HTMLElement, props: MainProps ) => TableApp} */
+export function hydrate(rootDom, props) {
+	preactHydrate(<Main {...props} />, rootDom);
 	return app;
 }
