@@ -1,11 +1,126 @@
-import { Main } from "./components.jsx";
-import { createRoot, createElement } from "preact";
+import { render as preactRender, createElement, Component } from "preact";
+import { Store } from "../_shared/store.js";
 
-/**
- * @param {HTMLElement} rootDom
- */
+/** @typedef {import('../_shared/store.js').RowProps} RowProps */
+
+/** @extends {Component<RowProps>} */
+class Row extends Component {
+	/** @param {RowProps} props */
+	constructor(props) {
+		super(props);
+		this.onDelete = this.onDelete.bind(this);
+		this.onClick = this.onClick.bind(this);
+	}
+
+	/** @param {RowProps} nextProps */
+	shouldComponentUpdate(nextProps) {
+		return (
+			nextProps.data !== this.props.data ||
+			nextProps.styleClass !== this.props.styleClass
+		);
+	}
+
+	onDelete() {
+		this.props.onDelete(this.props.data.id);
+	}
+
+	onClick() {
+		this.props.onClick(this.props.data.id);
+	}
+
+	render() {
+		let { styleClass, onClick, onDelete, data } = this.props;
+
+		return (
+			<tr className={styleClass}>
+				<td className="col-md-1">{data.id}</td>
+				<td className="col-md-4">
+					<a onClick={this.onClick}>{data.label}</a>
+				</td>
+				<td className="col-md-1">
+					<a onClick={this.onDelete}>
+						<span className="glyphicon glyphicon-remove" aria-hidden="true" />
+					</a>
+				</td>
+				<td className="col-md-6" />
+			</tr>
+		);
+	}
+}
+
+export class Main extends Component {
+	/** @param {{store?: Store}} props */
+	constructor(props) {
+		super(props);
+		this.state = { store: props.store ?? new Store() };
+		this.select = this.select.bind(this);
+		this.delete = this.delete.bind(this);
+
+		// @ts-ignore
+		window.app = this;
+	}
+	run() {
+		this.state.store.run();
+		this.setState({ store: this.state.store });
+	}
+	add() {
+		this.state.store.add();
+		this.setState({ store: this.state.store });
+	}
+	update() {
+		this.state.store.update();
+		this.setState({ store: this.state.store });
+	}
+	/** @param {number} id */
+	select(id) {
+		this.state.store.select(id);
+		this.setState({ store: this.state.store });
+	}
+	/** @param {number} id */
+	delete(id) {
+		this.state.store.delete(id);
+		this.setState({ store: this.state.store });
+	}
+	runLots() {
+		this.state.store.runLots();
+		this.setState({ store: this.state.store });
+	}
+	clear() {
+		this.state.store.clear();
+		this.setState({ store: this.state.store });
+	}
+	swapRows() {
+		this.state.store.swapRows();
+		this.setState({ store: this.state.store });
+	}
+	render() {
+		let rows = this.state.store.data.map((d, i) => {
+			return createElement(Row, {
+				key: d.id,
+				data: d,
+				onClick: this.select,
+				onDelete: this.delete,
+				styleClass: d.id === this.state.store.selected ? "danger" : "",
+			});
+		});
+
+		return (
+			<div className="container">
+				<table className="table table-hover table-striped test-data">
+					<tbody>{rows}</tbody>
+				</table>
+				<span
+					className="preloadicon glyphicon glyphicon-remove"
+					aria-hidden="true"
+				></span>
+			</div>
+		);
+	}
+}
+
+/** @param {HTMLElement} rootDom */
 export function render(rootDom) {
-	createRoot(rootDom).render(createElement(Main));
+	preactRender(<Main />, rootDom);
 
 	/** @type {import('../_shared/store.js').TableApp} */
 	// @ts-expect-error

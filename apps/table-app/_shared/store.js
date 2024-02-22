@@ -17,6 +17,14 @@ function _random(max) {
 
 /** @typedef {{id: number; label: string}} Data */
 
+/**
+ * @typedef RowProps
+ * @property {string} styleClass
+ * @property {(id: Data["id"]) => void} onClick
+ * @property {(id: Data["id"]) => void} onDelete
+ * @property {Data} data
+ */
+
 export class Store {
 	constructor() {
 		/** @type {Data[]} */

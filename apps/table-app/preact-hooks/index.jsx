@@ -2,17 +2,10 @@ import { createElement, render as preactRender } from "preact";
 import { useState, useCallback, useRef, useMemo } from "preact/hooks";
 import { Store } from "../_shared/store";
 
-/** @typedef {{id: number; label: string}} Data */
+/** @typedef {import('../_shared/store.js').Data} Data */
+/** @typedef {import('../_shared/store.js').RowProps} RowProps */
 
-/**
- * @typedef RowProps
- * @property {string} styleClass
- * @property {(id: Data["id"]) => void} onClick
- * @property {(id: Data["id"]) => void} onDelete
- * @property {Data} data
- *
- * @param {RowProps} props
- */
+/** @param {RowProps} props */
 function Row({ styleClass, onClick, onDelete, data }) {
 	// TODO: Memoize on styleClass and data
 
