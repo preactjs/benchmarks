@@ -1,11 +1,29 @@
+/** @type {(max: number) => number} */
 function _random(max) {
 	return Math.round(Math.random() * 1000) % max;
 }
 
+/**
+ * @typedef TableApp
+ * @property {() => void} run
+ * @property {() => void} add
+ * @property {() => void} update
+ * @property {(id: number) => void} select
+ * @property {(id: number) => void} delete
+ * @property {() => void} runLots
+ * @property {() => void} clear
+ * @property {() => void} swapRows
+ */
+
+/** @typedef {{id: number; label: string}} Data */
+
 export class Store {
 	constructor() {
+		/** @type {Data[]} */
 		this.data = [];
+		/** @type {Data["id"] | undefined} */
 		this.selected = undefined;
+		/** @type {number} */
 		this.id = 1;
 	}
 	buildData(count = 1000) {
@@ -84,6 +102,7 @@ export class Store {
 			});
 		}
 	}
+	/** @param {number} id */
 	delete(id) {
 		var idx = this.data.findIndex((d) => d.id === id);
 		this.data.splice(idx, 1);
@@ -98,6 +117,7 @@ export class Store {
 	update() {
 		this.updateData();
 	}
+	/** @param {number} id */
 	select(id) {
 		this.selected = id;
 	}

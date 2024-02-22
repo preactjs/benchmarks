@@ -1,5 +1,5 @@
 import { createElement, Component } from "preact";
-import { Store } from "./store.js";
+import { Store } from "../_shared/store.js";
 
 class Row extends Component {
 	constructor(props) {

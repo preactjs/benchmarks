@@ -7,8 +7,8 @@ import { createRoot, createElement } from "preact";
 export function render(rootDom) {
 	createRoot(rootDom).render(createElement(Main));
 
-	/** @type {Main} */
-	// @ts-ignore
+	/** @type {import('../_shared/store.js').TableApp} */
+	// @ts-expect-error
 	const app = window.app;
 	return {
 		run: app.run.bind(app),
