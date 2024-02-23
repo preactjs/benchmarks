@@ -1,0 +1,14 @@
+{
+  "name": "preact-v8",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    }
+  },
+  "dependencies": {
+    "preact": "^8.5.2"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@preact/benchmark-apps",
+  "type": "module",
+  "version": "0.0.1",
+  "main": "index.js",
+  "description": "Apps used to benchmark Preact's performance",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/preactjs/benchmarks.git"
+  },
+  "keywords": [
+    "Preact",
+    "benchmarks"
+  ],
+  "authors": [
+    "The Preact Authors (https://github.com/preactjs/preact/contributors)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/preactjs/benchmarks/issues"
+  },
+  "homepage": "https://github.com/preactjs/benchmarks#readme",
+  "dependencies": {
+    "afterframe": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/web": "^0.0.135",
+    "preact": "^10.19.4",
+    "@preact/signals": "^1.2.2"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "extends": "../jsconfig.json",
+  "compilerOptions": {
+    "noLib": false,
+    "lib": ["ESNext"],
+    "types": ["@types/node"],
+  },
+}

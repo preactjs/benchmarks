@@ -1,0 +1,11 @@
+{
+  "extends": "../jsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "createElement",
+    "jsxFragmentFactory": "Fragment",
+    "noLib": false,
+    "lib": ["ESNext"],
+    "types": ["@types/web", "../cli/src/types.d.ts"],
+  },
+}

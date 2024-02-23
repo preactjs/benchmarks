@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Preact Benchmarks</title>
+	</head>
+	<body>
+		<h1>Preact Benchmarks</h1>
+		<form id="benchmark-form" action="" method="get">
+			<h2>Select benchmark</h2>
+			<div class="form-group">
+				<label for="app-select">Select a benchmarking app:</label>
+				<select id="app-select"></select>
+			</div>
+			<div class="form-group">
+				<label for="benchmark-select" class="form-label"
+					>Select a benchmark:</label
+				>
+				<select id="benchmark-select" class="form-select"></select>
+			</div>
+			<div class="form-group">
+				<label for="impl-select" class="form-label"
+					>Select an implementation:</label
+				>
+				<select id="impl-select" name="impl" class="form-select"></select>
+			</div>
+
+			<h2>Override dependency versions</h2>
+			<div id="dependencies"></div>
+
+			<br />
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">Load benchmark</button>
+			</div>
+		</form>
+		<div id="root"></div>
+		<script type="text/javascript">
+			window.configData = JSON.parse(`__CONFIG_DATA__`);
+		</script>
+		<script type="module" src="/apps/index.js"></script>
+	</body>
+</html>
