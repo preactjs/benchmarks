@@ -69,6 +69,9 @@ function mount() {
 		appSelect.appendChild(option);
 	}
 
+	// Parse saved dependency values
+	const savedDeps = initialConfig.getAll("dep").map(parseDepVersion);
+
 	// Create dependency select elements
 	const dependencies = Object.keys(config.dependencies);
 	depGroup.innerHTML = "";
@@ -83,10 +86,7 @@ function mount() {
 		select.name = "dep";
 
 		const prevVersion =
-			initialConfig
-				.getAll("dep")
-				.map((d) => parseDepVersion(d))
-				.find(([name]) => name === dep)?.[1] ?? "latest";
+			savedDeps.find(([name]) => name === dep)?.[1] ?? "latest";
 
 		for (let version of Object.keys(config.dependencies[dep])) {
 			const option = document.createElement("option");
