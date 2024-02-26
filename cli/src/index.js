@@ -6,8 +6,8 @@ import { dependencyPlugin } from "./plugins/dependencyPlugin.js";
 import { runTach } from "./tach.js";
 import { displayResults } from "./results.js";
 
-/** @type {(dev?: boolean, port?: number) => Promise<import("vite").ViteDevServer>} */
-export async function runBenchServer(dev = false, port) {
+/** @type {(dev?: boolean, hmr?: boolean, port?: number) => Promise<import("vite").ViteDevServer>} */
+export async function runBenchServer(dev = false, hmr = false, port) {
 	// TODO: Consider how in dev mode how to handle preparing dependencies...
 	const server = await createServer({
 		root: repoRoot(),
@@ -18,7 +18,7 @@ export async function runBenchServer(dev = false, port) {
 			jsxFragment: "Fragment",
 		},
 		optimizeDeps: { disabled: true },
-		server: { port, hmr: dev },
+		server: { port, hmr },
 		plugins: [rootIndexPlugin(), dependencyPlugin()],
 	});
 
@@ -36,7 +36,7 @@ export async function runBenchServer(dev = false, port) {
 export async function runBenchmarks(benchmarkFile, benchConfig) {
 	await mkdir(resultsPath(), { recursive: true });
 
-	const server = await runBenchServer(false, benchConfig.port);
+	const server = await runBenchServer(false, false, benchConfig.port);
 
 	let results;
 	try {

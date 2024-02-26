@@ -1,0 +1,37 @@
+diff --git a/dist/node/chunks/dep-V3BH7oO1.js b/dist/node/chunks/dep-V3BH7oO1.js
+index 628c10d380dd760b1f5f54baddbaa37747b335d6..73dda28ae9c5659a8702f620191c143d08a47453 100644
+--- a/dist/node/chunks/dep-V3BH7oO1.js
++++ b/dist/node/chunks/dep-V3BH7oO1.js
+@@ -59650,18 +59650,22 @@ const devHtmlHook = async (html, { path: htmlPath, filename, server, originalUrl
+         }),
+     ]);
+     html = s.toString();
++
++    let tags = [];
++    if (server.hmr) {
++      tags.push({
++        tag: "script",
++        attrs: {
++          type: "module",
++          src: path$o.posix.join(base, CLIENT_PUBLIC_PATH),
++        },
++        injectTo: "head-prepend",
++      });
++    }
++
+     return {
+         html,
+-        tags: [
+-            {
+-                tag: 'script',
+-                attrs: {
+-                    type: 'module',
+-                    src: path$o.posix.join(base, CLIENT_PUBLIC_PATH),
+-                },
+-                injectTo: 'head-prepend',
+-            },
+-        ],
++        tags,
+     };
+ };
+ function indexHtmlMiddleware(root, server) {

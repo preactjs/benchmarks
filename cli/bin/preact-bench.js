@@ -375,13 +375,14 @@ prog
 	.action(benchAction);
 
 prog
-	.command("dev")
-	.describe("Run dev server")
+	.command("start")
+	.describe("Run a dev server - useful when building benchmarks")
 	.option(
 		"-p, --port",
 		"What port to run the benchmark server on",
 		defaultBenchOptions.port,
 	)
-	.action((args) => runBenchServer(true, args.port));
+	.option("--hmr", "Enables HMR in the browser", false)
+	.action((args) => runBenchServer(true, args.hmr, args.port));
 
 prog.parse(process.argv);
