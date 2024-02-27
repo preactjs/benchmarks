@@ -48,6 +48,7 @@
     "@types/d3-array": "^3.2.1",
     "@types/d3-scale": "^4.0.8",
     "@types/node": "^20.11.6",
-    "@types/inquirer": "^9.0.7"
+    "@types/inquirer": "^9.0.7",
+    "@types/selenium-webdriver": "^4.1.21"
   }
 }
