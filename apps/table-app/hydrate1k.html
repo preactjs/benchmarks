@@ -9,6 +9,16 @@
 		<h1>Hydrate 1k</h1>
 		<script type="module">
 			import "@impl";
+			import { measureName, measureMemory } from "../utils.js";
+
+			function delay(ms) {
+				return new Promise((resolve) => setTimeout(resolve, ms));
+			}
+
+			performance.mark("start");
+			await delay(Math.floor(Math.random() * 250));
+			performance.measure(measureName, "start");
+			measureMemory();
 		</script>
 	</body>
 </html>

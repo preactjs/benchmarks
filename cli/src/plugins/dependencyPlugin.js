@@ -3,7 +3,7 @@ import path from "node:path";
 import fs from "node:fs/promises";
 import * as resolve from "resolve.exports";
 import { URLPattern } from "urlpattern-polyfill";
-import { depFilePath, repoRoot, toURLPath } from "../utils.js";
+import { depFilePath, parseDepVersion, repoRoot, toURLPath } from "../utils.js";
 import { getDepConfig } from "../config.js";
 
 /** @type {(...args: any[]) => any} */
@@ -17,7 +17,7 @@ require.extensions[".tsx"] = compileModule;
 require.extensions[".ts"] = compileModule;
 
 const pattern = new URLPattern(
-	"https://localhost:/apps/:appName/:benchmarkName",
+	"http://localhost:/apps/:appName/:benchmarkName",
 );
 
 const depImportPrefix = `/@dep/`;
@@ -64,7 +64,7 @@ async function getImportMapForDep(dep, version) {
 
 /**
  * Plugin to insert an import map into benchmark HTML files to map dependencies
- * to requested versions, as well as map the "app" import specifier to the
+ * to requested versions, as well as map the "@impl" import specifier to the
  * requested implementation
  * @type {() => import('vite').Plugin}
  */
@@ -79,13 +79,13 @@ export function dependencyPlugin() {
 			async handler(id, importer) {
 				if (!importer) return;
 
-				// Only reroute imports from the apps directory (aka benchmark
+				// Only reroute imports from 1) apps directory (aka benchmark
 				// implementations) which will import the libraries whose versions we
-				// want to control and files in pnpm's node_modules folder. We reroute
+				// want to control, and 2) files in pnpm's node_modules folder. We reroute
 				// imports from pnpm's node_modules folder because we want to control
 				// the versions other libraries import as well. For example, if an
 				// implementation imports @preact/signals, we need to sure when
-				// @preact/signals imports @preact/hooks, it imports the version we
+				// @preact/signals imports preact/hooks, it imports the version we
 				// want, and not the version it was installed with.
 				if (
 					!importer.startsWith(repoRoot("apps")) &&
@@ -102,10 +102,11 @@ export function dependencyPlugin() {
 				/** @type {string | undefined} */
 				let resolvedId;
 				if (id === "@impl") {
-					// This is the app import. Map it to the requested implementation
+					// This is the impl import. Map it to the requested implementation
 					resolvedId = implImportPrefix;
 				} else if (
 					dependencies.includes(id) ||
+					// ⬇️ handle subpackage imports, e.g. `preact/hooks` where `preact` is the entry in the depConfig
 					dependencies.includes(id.split("/")[0])
 				) {
 					// This source url needs to be mapped. Mark for mapping by giving it a
@@ -125,7 +126,7 @@ export function dependencyPlugin() {
 			if (ctx.path === "/" || ctx.path === "/index.html") return;
 			if (!ctx.originalUrl) return;
 
-			const url = new URL(ctx.originalUrl, "https://localhost/");
+			const url = new URL(ctx.originalUrl, "http://localhost/");
 			const match = pattern.exec(url);
 			if (!match) return;
 
@@ -140,19 +141,20 @@ export function dependencyPlugin() {
 			/** @type {ImportMap} */
 			const importMap = { imports: {} };
 
-			// Add the app import
+			// Add the impl import
 			const impl = params.get("impl") ?? "";
 			importMap.imports[implImportPrefix] = toURLPath(
 				require.resolve(repoRoot("apps", appName, impl)),
 			);
 
-			for (let [key, value] of params) {
-				if (!key.startsWith("dep:")) continue;
+			const depConfig = await getDepConfig();
+			const specifiedDeps = params.getAll("dep").map((v) => parseDepVersion(v));
 
-				const dep = key.slice(4);
-				const version = value;
-
-				const depImportMap = await getImportMapForDep(dep, version);
+			// Specify an import map for each dependency, defaulting unspecified ones to "latest"
+			for (const depName of Object.keys(depConfig)) {
+				const version =
+					specifiedDeps.find(([name]) => name === depName)?.[1] ?? "latest";
+				const depImportMap = await getImportMapForDep(depName, version);
 				importMap.imports = { ...importMap.imports, ...depImportMap.imports };
 			}
 

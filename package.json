@@ -5,12 +5,13 @@
   "version": "0.0.1",
   "description": "Repository of benchmarks for Preact",
   "scripts": {
+    "bench": "node cli/bin/preact-bench.js bench",
     "format": "prettier --no-error-on-unmatched-pattern --write **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
     "lint": "pnpm lint:format && pnpm tsc",
     "lint:format": "prettier --no-error-on-unmatched-pattern --check **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
     "lint-staged": "lint-staged",
     "prepare": "husky install",
-    "start": "node cli/bin/preact-bench.js dev",
+    "start": "node cli/bin/preact-bench.js start",
     "tsc": "npm run tsc:apps && npm run tsc:cli && npm run tsc:deps",
     "tsc:apps": "tsc -p apps/jsconfig.json",
     "tsc:cli": "tsc -p cli/jsconfig.json",
@@ -47,5 +48,11 @@
   },
   "volta": {
     "node": "20.11.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "tachometer@0.7.0": "patches/tachometer@0.7.0.patch",
+      "vite@5.0.11": "patches/vite@5.0.11.patch"
+    }
   }
 }

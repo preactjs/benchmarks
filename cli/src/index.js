@@ -1,12 +1,14 @@
+import { mkdir, readFile } from "node:fs/promises";
 import { createServer } from "vite";
 import { rootIndexPlugin } from "./plugins/rootIndexPlugin.js";
-import { repoRoot } from "./utils.js";
+import { repoRoot, resultsPath } from "./utils.js";
 import { dependencyPlugin } from "./plugins/dependencyPlugin.js";
+import { runTach } from "./tach.js";
+import { displayResults } from "./results.js";
 
-/** @type {() => Promise<void>} */
-export async function runDevServer() {
-	// TODO: Only in dev mode should we enable HMR. We should disable it when
-	// actually running benchmarks.
+/** @type {(dev?: boolean, hmr?: boolean, port?: number) => Promise<import("vite").ViteDevServer>} */
+export async function runBenchServer(dev = false, hmr = false, port) {
+	// TODO: Consider how in dev mode how to handle preparing dependencies...
 	const server = await createServer({
 		root: repoRoot(),
 		configFile: false,
@@ -16,14 +18,33 @@ export async function runDevServer() {
 			jsxFragment: "Fragment",
 		},
 		optimizeDeps: { disabled: true },
+		server: { port, hmr },
 		plugins: [rootIndexPlugin(), dependencyPlugin()],
 	});
+
 	await server.listen();
 
-	server.printUrls();
-	server.bindCLIShortcuts({ print: true });
+	if (dev) {
+		server.printUrls();
+		server.bindCLIShortcuts({ print: true });
+	}
+
+	return server;
 }
 
-export async function runBenchmarks() {
-	console.log("Running benchmarks...");
+/** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<void>} */
+export async function runBenchmarks(benchmarkFile, benchConfig) {
+	await mkdir(resultsPath(), { recursive: true });
+
+	const server = await runBenchServer(false, false, benchConfig.port);
+
+	let results;
+	try {
+		results = await runTach(benchmarkFile, benchConfig);
+	} finally {
+		await server.close();
+	}
+
+	console.log("\n\n");
+	await displayResults(results);
 }

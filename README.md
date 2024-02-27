@@ -17,4 +17,40 @@ Use the benchmark server to development/modify a benchmark implementation. The s
 1. Run `pnpm bench` to run a benchmark
 2. Follow the prompts to select which implementation and dependency versions to compare
 
-Run `pnpm bench -- --help` to see all the options available to you.
+Run `pnpm bench --help` to see all available options.
+
+```text
+$ pnpm bench --help
+
+  Description
+    Run the given benchmark using the specified implementation with the specified dependencies.
+    If no benchmark file, no dependencies, or no implementations are specified, will prompt for one.
+
+  Usage
+    $ preact-bench bench [benchmark_file] [options]
+
+  Options
+    --interactive        Prompt for options. Defaults to true of no benchmark file,
+		                     dependencies, or implementations are specified  (default false)
+    -d, --dependency     What group of dependencies (comma-delimited) and version to
+		                     use for a run of the benchmark (package@version)  (default latest)
+    -i, --impl           What implementation of the benchmark to run  (default preact-class)
+    -n, --sample-size    Minimum number of times to run each benchmark  (default 25)
+    -h, --horizon        The degrees of difference to try and resolve when auto-sampling
+		                     ("N%" or "Nms", comma-delimited)  (default 5%)
+    -t, --timeout        Maximum number of minutes to spend auto-sampling  (default 1)
+    --trace              Enable performance tracing (Chrome only)  (default false)
+    --debug              Enable debug logging  (default false)
+    -b, --browser        Which browser to run the benchmarks in: chrome, chrome-headless,
+		                     firefox, firefox-headless, safari, edge  (default chrome-headless)
+    -p, --port           What port to run the benchmark server on  (default 5173)
+    -h, --help           Displays this message
+
+  Examples
+    $ preact-bench bench
+    $ preact-bench bench apps/todo/todo.html
+    $ preact-bench bench apps/todo/todo.html -d preact@local -d preact@latest
+    $ preact-bench bench apps/todo/todo.html -d preact@local -d preact@main -i preact-hooks
+    $ preact-bench bench apps/todo/todo.html -d preact@local,signals@local -d preact@main,signals@local -i preact-signals -n 2 -t 0
+    $ preact-bench bench apps/todo/todo.html -d preact@local -d preact@main --trace
+```
