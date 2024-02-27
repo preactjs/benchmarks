@@ -10,14 +10,10 @@ function Component({ randomValue }) {
 	);
 }
 
-/** @type {any} */
-let root;
-
-/** @type {(randomValue: number) => void} */
-export function render(randomValue) {
-	if (!root) {
-		root = document.getElementById("root");
-	}
-
-	compatRender(<Component randomValue={randomValue} />, root);
+/** @type {(rootElement: HTMLElement, initialValue: number) => (randomValue: number) => void} */
+export function mount(rootElement, initialValue = -1) {
+	compatRender(<Component randomValue={initialValue} />, rootElement);
+	return (randomValue) => {
+		compatRender(<Component randomValue={randomValue} />, rootElement);
+	};
 }

@@ -11,14 +11,12 @@ function Component({ randomValue }) {
 	);
 }
 
-/** @type {any} */
-let root;
+/** @type {(rootElement: HTMLElement, initialValue: number) => (randomValue: number) => void} */
+export function mount(rootElement, initialValue = -1) {
+	let root = createRoot(rootElement);
+	root.render(<Component randomValue={initialValue} />);
 
-/** @type {(randomValue: number) => void} */
-export function render(randomValue) {
-	if (!root) {
-		root = createRoot(document.getElementById("root"));
-	}
-
-	root.render(<Component randomValue={randomValue} />);
+	return (randomValue) => {
+		root.render(<Component randomValue={randomValue} />);
+	};
 }

@@ -9,9 +9,9 @@
 		<div id="root"></div>
 		<script type="module">
 			import { measureName, measureMemory } from "../utils.js";
-			import { render } from "@impl";
+			import { mount } from "@impl";
 
-			render(-1);
+			const render = mount(document.getElementById("root"));
 
 			performance.mark("start");
 			for (let i = 0; i < 100; i++) {
