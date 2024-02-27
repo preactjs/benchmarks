@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Text Updates</title>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module">
+			import { measureName, measureMemory } from "../utils.js";
+			import { mount } from "@impl";
+
+			const render = mount(document.getElementById("root"));
+
+			performance.mark("start");
+			for (let i = 0; i < 100; i++) {
+				render(i);
+			}
+			performance.mark("stop");
+			performance.measure(measureName, "start", "stop");
+			measureMemory();
+		</script>
+	</body>
+</html>

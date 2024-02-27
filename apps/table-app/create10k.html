@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>create many rows</title>
+		<meta name="description" content="creating 10,000 rows" />
+		<style>
+			.preloadicon {
+				display: none;
+			}
+			.glyphicon-remove:before {
+				content: "⨯";
+			}
+		</style>
+	</head>
+	<body>
+		<div id="main"></div>
+		<script type="module">
+			import {
+				measureName,
+				measureMemory,
+				testElementText,
+				afterFrame,
+			} from "../utils.js";
+			import { render } from "@impl";
+
+			const { runLots } = render(document.getElementById("main"));
+
+			async function main() {
+				const elementSelector = "tr:last-child > td:first-child";
+
+				performance.mark("start");
+				runLots();
+
+				afterFrame(() => {
+					testElementText(elementSelector, "10000");
+					performance.mark("stop");
+					performance.measure(measureName, "start", "stop");
+
+					measureMemory();
+				});
+			}
+
+			main();
+		</script>
+	</body>
+</html>

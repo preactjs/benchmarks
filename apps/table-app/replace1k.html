@@ -7,20 +7,52 @@
 	</head>
 	<body>
 		<h1>Replace 1k</h1>
+		<div id="main"></div>
 		<script type="module">
-			import "@impl";
-			import { measureName, measureMemory } from "../utils.js";
+			import {
+				measureName,
+				measureMemory,
+				testElementText,
+				afterFrame,
+				afterFrameAsync,
+				markRunStart,
+				markRunEnd,
+			} from "../utils.js";
+			import { render } from "@impl";
 
-			performance.mark("start");
+			const { run } = render(document.getElementById("main"));
 
-			const WARMUP_COUNT = 5;
-			for (let i = 0; i < WARMUP_COUNT; i++) {
-				performance.measure(`run-warmup-${i}`, "start");
+			async function main() {
+				const elementSelector = "tr:first-child > td:first-child";
+
+				// MUST BE KEPT IN SYNC WITH WARMUP COUNT IN benches/scripts/config.js
+				const WARMUP_COUNT = 5;
+				for (let i = 0; i < WARMUP_COUNT; i++) {
+					markRunStart(`warmup-${i}`);
+					run();
+					await markRunEnd(`warmup-${i}`);
+
+					await afterFrameAsync();
+					testElementText(elementSelector, (i * 1000 + 1).toFixed());
+				}
+
+				await afterFrameAsync();
+
+				afterFrame(function () {
+					testElementText(elementSelector, WARMUP_COUNT + "001");
+					performance.mark("stop");
+					performance.measure(measureName, "start", "stop");
+
+					measureMemory();
+				});
+
+				markRunStart("final");
+				performance.mark("start");
+				run();
+				await markRunEnd("final");
 			}
 
-			performance.measure("run-final", "start");
-			performance.measure(measureName, "start");
-			measureMemory();
+			afterFrame(main);
 		</script>
 	</body>
 </html>

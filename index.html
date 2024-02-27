@@ -38,6 +38,9 @@
 		<script type="text/javascript">
 			window.configData = JSON.parse(`__CONFIG_DATA__`);
 		</script>
-		<script type="module" src="/apps/index.js"></script>
+		<script type="module">
+			import { mount } from "/apps/index.js";
+			mount();
+		</script>
 	</body>
 </html>
