@@ -38,8 +38,6 @@ const state = {
 	impl: initialConfig.get("impl") ?? "",
 };
 
-mount();
-
 function getCurrentFormValues() {
 	const formData = new FormData(form);
 	formData.set("app", appSelect.value);
@@ -57,7 +55,7 @@ function readSavedFormValues() {
 	return new URLSearchParams(sessionStorage.getItem(storageKey) ?? "");
 }
 
-function mount() {
+export function mount() {
 	// Add app options
 	const apps = Object.keys(config.apps);
 	appSelect.innerHTML = "";
