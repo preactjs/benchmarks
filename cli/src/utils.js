@@ -78,7 +78,7 @@ export function getBenchmarkBaseName(benchmarkFile) {
  */
 export function getBenchmarkId(baseName, dependencies, impl) {
 	const depGroupId = dependencies
-		.map(([name, version]) => `${name}@${version}`)
+		.map(([name, version]) => makeDepVersion(name, version))
 		.join(", ");
 
 	return {

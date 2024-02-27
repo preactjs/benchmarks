@@ -16,7 +16,7 @@ const prompts = inquirer.createPromptModule();
 const IS_CI = process.env.CI === "true";
 const defaultBenchOptions = {
 	interactive: false,
-	dependency: "latest",
+	dependency: "@latest",
 	impl: "preact-class",
 	// Tachometer default is 50, but locally let's only do 25
 	"sample-size": !IS_CI ? 25 : 50,
