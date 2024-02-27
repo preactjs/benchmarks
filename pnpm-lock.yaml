@@ -95,12 +95,18 @@ importers:
         specifier: ^5.0.11
         version: 5.0.11(patch_hash=svhiouaekrkatuw526sjeontsm)(@types/node@20.11.6)
     devDependencies:
+      "@types/d3-array":
+        specifier: ^3.2.1
+        version: 3.2.1
+      "@types/d3-scale":
+        specifier: ^4.0.8
+        version: 4.0.8
+      "@types/inquirer":
+        specifier: ^9.0.7
+        version: 9.0.7
       "@types/node":
         specifier: ^20.11.6
         version: 20.11.6
-      "@types/prompts":
-        specifier: ^2.4.9
-        version: 2.4.9
 
   dependencies: {}
 
@@ -884,6 +890,29 @@ packages:
       "@babel/types": 7.23.9
     dev: false
 
+  /@types/d3-array@3.2.1:
+    resolution:
+      {
+        integrity: sha512-Y2Jn2idRrLzUfAKV2LyRImR+y4oa2AntrgID95SHJxuMUrkNXmanDSed71sRNZysveJVt1hLLemQZIady0FpEg==,
+      }
+    dev: true
+
+  /@types/d3-scale@4.0.8:
+    resolution:
+      {
+        integrity: sha512-gkK1VVTr5iNiYJ7vWDI+yUFFlszhNMtVeneJ6lUTKPjprsvLLI9/tgEGiXJOnlINJA8FyA88gfnQsHbybVZrYQ==,
+      }
+    dependencies:
+      "@types/d3-time": 3.0.3
+    dev: true
+
+  /@types/d3-time@3.0.3:
+    resolution:
+      {
+        integrity: sha512-2p6olUZ4w3s+07q3Tm2dbiMZy5pCDfYwtLXXHUnVzXgQlZ/OyPtUz6OL382BkOuGlLXqfT+wqv8Fw2v8/0geBw==,
+      }
+    dev: true
+
   /@types/estree@1.0.5:
     resolution:
       {
@@ -907,6 +936,16 @@ packages:
       }
     dev: false
 
+  /@types/inquirer@9.0.7:
+    resolution:
+      {
+        integrity: sha512-Q0zyBupO6NxGRZut/JdmqYKOnN95Eg5V8Csg3PGKkP+FnvsUZx1jAyK7fztIszxxMuoBA6E3KXWvdZVXIpx60g==,
+      }
+    dependencies:
+      "@types/through": 0.0.33
+      rxjs: 7.8.1
+    dev: true
+
   /@types/node@11.15.54:
     resolution:
       {
@@ -929,14 +968,13 @@ packages:
       }
     dev: false
 
-  /@types/prompts@2.4.9:
+  /@types/through@0.0.33:
     resolution:
       {
-        integrity: sha512-qTxFi6Buiu8+50/+3DGIWLHM6QuWsEKugJnnP6iv2Mc4ncxE4A/OJkjuVOA+5X0X1S/nq5VJRa8Lu+nwcvbrKA==,
+        integrity: sha512-HsJ+z3QuETzP3cswwtzt2vEIiHBk/dCcHGhbmG5X3ecnwFD/lPrMpliGXxSCg03L9AhrdwA4Oz/qfspkDW+xGQ==,
       }
     dependencies:
       "@types/node": 20.11.6
-      kleur: 3.0.3
     dev: true
 
   /@types/web@0.0.135:
@@ -2678,14 +2716,6 @@ packages:
     dependencies:
       json-buffer: 3.0.1
     dev: false
-
-  /kleur@3.0.3:
-    resolution:
-      {
-        integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==,
-      }
-    engines: { node: ">=6" }
-    dev: true
 
   /kleur@4.1.5:
     resolution:
