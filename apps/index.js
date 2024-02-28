@@ -40,6 +40,8 @@ const state = {
 
 function getCurrentFormValues() {
 	const formData = new FormData(form);
+	removeDefaultValues(formData);
+
 	formData.set("app", appSelect.value);
 	formData.set("benchmark", benchmarkSelect.value);
 	// @ts-expect-error DOM types are wrong
@@ -53,6 +55,25 @@ function saveFormValues() {
 
 function readSavedFormValues() {
 	return new URLSearchParams(sessionStorage.getItem(storageKey) ?? "");
+}
+
+/** @type {(formData: FormData) => void} */
+function removeDefaultValues(formData) {
+	let nonLatestDeps = [];
+	for (let [key, value] of formData) {
+		if (
+			key === "dep" &&
+			typeof value === "string" &&
+			!value.includes("@latest")
+		) {
+			nonLatestDeps.push(value);
+		}
+	}
+
+	formData.delete("dep");
+	for (let dep of nonLatestDeps) {
+		formData.append("dep", dep);
+	}
 }
 
 export function mount() {
@@ -104,6 +125,9 @@ export function mount() {
 	appSelect.addEventListener("input", rerender);
 	benchmarkSelect.addEventListener("input", rerender);
 	form.addEventListener("submit", saveFormValues);
+	form.addEventListener("formdata", (event) => {
+		removeDefaultValues(event.formData);
+	});
 
 	// Mount dependent select boxes
 	rerenderBenchmarks();
