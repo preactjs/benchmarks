@@ -1,6 +1,7 @@
 import { createElement, createRoot } from "preact";
+import { useState, useCallback } from "preact/hooks";
 
-const state = {
+const initialState = {
 	msg: "hello",
 	list: new Array(1000).fill(0).map((_, i) => ({
 		i,
@@ -8,8 +9,21 @@ const state = {
 	})),
 };
 
+/** @type {() => void} */
+let scheduleUpdate;
+
 let counter = 0;
 function App() {
+	const [state, setState] = useState(initialState);
+	scheduleUpdate = useCallback(() => {
+		setState((prev) => {
+			const newState = { ...prev };
+			newState.msg = newState.msg === "hello" ? "bye" : "hello";
+			newState.list[0].text = newState.msg;
+			return newState;
+		});
+	}, []);
+
 	return (
 		<div>
 			<p>{`> ${++counter} <`}</p>
@@ -41,8 +55,6 @@ export function mount(rootElement) {
 	root.render(<App />);
 
 	return function rerender() {
-		state.msg = state.msg === "hello" ? "bye" : "hello";
-		state.list[0].text = state.msg;
-		root.render(<App />);
+		scheduleUpdate();
 	};
 }
