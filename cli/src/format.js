@@ -50,7 +50,7 @@ const createMeanValueDimension = (format) => ({
 });
 
 /** @type {(benchmark: BenchmarkResult[]) => any} */
-export function buildTable(benchmarkResults) {
+export function displayTable(benchmarkResults) {
 	for (let benchmarkResult of benchmarkResults) {
 		let formatNum = milli;
 		if (benchmarkResult.measurement.name === "usedJSHeapSize") {

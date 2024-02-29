@@ -1,4 +1,4 @@
-import { buildTable } from "./format.js";
+import { displayTable } from "./format.js";
 import { computeStats } from "./stats.js";
 import { parseBenchmarkId } from "./utils.js";
 
@@ -14,7 +14,8 @@ export async function displayResults(tachResults) {
 		return;
 	}
 
-	const result = buildBenchmarkResults(tachResults);
+	const results = buildBenchmarkResults(tachResults);
+	displayTable(results);
 }
 
 /** @type {(tachResults: TachResult[]) => BenchmarkResult[]} */
@@ -59,8 +60,6 @@ function buildBenchmarkResults(tachResults) {
 	}
 
 	computeStats(results);
-
-	buildTable(results);
 
 	return results;
 }

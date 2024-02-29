@@ -36,7 +36,7 @@ class Row extends Component {
 	}
 
 	render() {
-		let { styleClass, onClick, onDelete, data } = this.props;
+		let { styleClass, data } = this.props;
 
 		return (
 			<tr className={styleClass}>
@@ -120,7 +120,7 @@ export class Main extends Component {
 				<span
 					className="preloadicon glyphicon glyphicon-remove"
 					aria-hidden="true"
-				></span>
+				/>
 			</div>
 		);
 	}
