@@ -162,7 +162,7 @@ export function dependencyPlugin() {
 
 			// Serialize import map and fix indentation so it looks nice when debugging
 			const importMapString = JSON.stringify(importMap, null, 2)
-				.replace(/  /g, "\t")
+				.replace(/ {2}/g, "\t")
 				.replace(/\n/g, "\n\t\t");
 
 			return {
