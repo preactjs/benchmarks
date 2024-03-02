@@ -54,3 +54,55 @@ $ pnpm bench --help
     $ preact-bench bench apps/todo/todo.html -d preact@local,signals@local -d preact@main,signals@local -i preact-signals -n 2 -t 0
     $ preact-bench bench apps/todo/todo.html -d preact@local -d preact@main --trace
 ```
+
+## Benchmarking within another repository
+
+This repository is intended to be included as a submodule in another repository. This allows you to run benchmarks against local changes in that repository. The `dev` script in this repository starts a benchmarking dev server that is useful when benchmarking changes in another repository.
+
+```
+$ pnpm dev --help
+
+Description
+    Run a dev server to interactively run a benchmark while developing changes
+
+  Usage
+    $ preact-bench dev [benchmark_file] [options]
+
+  Options
+    --interactive        Prompt for options  (default false)
+    -d, --dependency     What group of dependencies (comma-delimited) and version to
+		                     use for a run of the benchmark (package@version)  (default latest)
+    -i, --impl           What implementation of the benchmark to run  (default preact-class)
+    -n, --sample-size    Minimum number of times to run each benchmark  (default 25)
+    -h, --horizon        The degrees of difference to try and resolve when auto-sampling
+		                     ("N%" or "Nms", comma-delimited)  (default 5%)
+    -t, --timeout        Maximum number of minutes to spend auto-sampling  (default 1)
+    --trace              Enable performance tracing (Chrome only)  (default false)
+    --debug              Enable debug logging  (default false)
+    -b, --browser        Which browser to run the benchmarks in: chrome, chrome-headless,
+		                     firefox, firefox-headless, safari, edge  (default chrome-headless)
+    -p, --port           What port to run the benchmark server on  (default 5173)
+    -h, --help           Displays this message
+
+  Examples
+    $ preact-bench dev apps/todo/todo.html -d preact@local -d preact@main -i preact-hooks
+    $ preact-bench dev apps/todo/todo.html -d preact@local -d preact@local-pinned -i preact-hooks
+```
+
+This command shares the same options as the `bench` command. Once you start the server you can press `b⏎` to re-build your local Preact repository (or whatever repository this is within) and re-run the configured benchmarks.
+
+```text
+$ pnpm dev apps/many-updates/many-updates.html -i preact -d preact@local -d preact@local-pinned -n 2 -t 0
+
+> @preact/benchmarks@0.0.1 dev /Users/andre_wiggins/github/preactjs/preact-v10/benchmarks
+> node cli/bin/preact-bench.js dev "apps/many-updates/many-updates.html" "-i" "preact" "-d" "preact@local" "-d" "preact@local-pinned" "-n" "2" "-t" "0"
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press p + enter Pin current local changes into local-pinned
+  ➜  press b + enter run Benchmarks
+  ➜  press h + enter show help
+
+```
+
+You can also press the `p⏎` key to build your local repos changes and copy them into the relevant `local-pinned` directory. This command is useful when you want to compare different local changes against each other.

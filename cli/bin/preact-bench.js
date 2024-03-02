@@ -433,10 +433,11 @@ setupBenchmarkCLIArgs(prog.command("dev [benchmark_file]"))
 	.describe(
 		"Run a dev server to interactively run a benchmark while developing changes",
 	)
-	.option(
-		"-p, --port",
-		"What port to run the benchmark server on",
-		defaultBenchOptions.port,
+	.example(
+		"dev apps/todo/todo.html -d preact@local -d preact@main -i preact-hooks",
+	)
+	.example(
+		"dev apps/todo/todo.html -d preact@local -d preact@local-pinned -i preact-hooks",
 	)
 	.action((benchmarkFile, args) => {
 		const benchConfig = parseBenchmarkCLIArgs(args);
