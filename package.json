@@ -7,6 +7,7 @@
   "scripts": {
     "analyze": "node cli/bin/preact-bench.js analyze",
     "bench": "node cli/bin/preact-bench.js bench",
+    "dev": "node cli/bin/preact-bench.js dev",
     "format": "prettier --no-error-on-unmatched-pattern --write **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
     "lint": "pnpm lint:format && pnpm tsc",
     "lint:format": "prettier --no-error-on-unmatched-pattern --check **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",

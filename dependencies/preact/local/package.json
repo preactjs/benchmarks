@@ -15,6 +15,6 @@
     }
   },
   "dependencies": {
-    "preact": "file:../../../../"
+    "preact": "file:preact-local.tgz"
   }
 }
