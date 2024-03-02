@@ -154,6 +154,12 @@ importers:
         specifier: file:preact-local.tgz
         version: file:dependencies/preact/local/preact-local.tgz
 
+  dependencies/preact/local-pinned:
+    dependencies:
+      preact:
+        specifier: file:preact-local-pinned.tgz
+        version: file:dependencies/preact/local-pinned/preact-local-pinned.tgz
+
   dependencies/preact/main:
     dependencies:
       preact:
@@ -3285,6 +3291,16 @@ packages:
   /yocto-queue@1.0.0:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
+    dev: false
+
+  file:dependencies/preact/local-pinned/preact-local-pinned.tgz:
+    resolution:
+      {
+        integrity: sha512-b6hgP26pRHqy7Z9BIbs5HCNwjV83CZ+45u2TEeysdGnIoNBQGgcjDjSvIotHLOcxqxkEyiGnLbwD/Ed6w7O3IQ==,
+        tarball: file:dependencies/preact/local-pinned/preact-local-pinned.tgz,
+      }
+    name: preact
+    version: 10.19.6
     dev: false
 
   file:dependencies/preact/local/preact-local.tgz:

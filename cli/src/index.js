@@ -50,7 +50,9 @@ export async function runBenchmarksInteractively(benchmarkFile, benchConfig) {
 			key: "p",
 			description: "Pin current local changes into local-pinned",
 			async action() {
+				console.log("\nPinning local dependencies...");
 				await pinLocalDependencies(benchConfig.depGroups.flat());
+				console.log();
 			},
 		},
 		{
@@ -68,6 +70,7 @@ export async function runBenchmarksInteractively(benchmarkFile, benchConfig) {
 
 				console.log("\n\n");
 				await displayResults(results);
+				console.log();
 			},
 		},
 	];

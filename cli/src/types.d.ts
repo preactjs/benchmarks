@@ -143,4 +143,5 @@ declare module "jstat" {
 
 interface DependencyScripts {
 	setup?(): Promise<() => Promise<void>>;
+	pin?(): Promise<void>;
 }

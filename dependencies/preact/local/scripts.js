@@ -1,10 +1,9 @@
 /// <reference types="node" />
 
-import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { Writable } from "node:stream";
+import { execProcess } from "../../utils.js";
 
 const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
 
@@ -12,66 +11,7 @@ const __dirname = new URL(".", import.meta.url).pathname;
 /** @type {(...args: string[]) => string} */
 const pkgRoot = (...args) => path.join(__dirname, ...args);
 
-/**
- * @param {import('child_process').ChildProcess} childProcess
- * @returns {Promise<void>}
- */
-async function waitForExit(childProcess) {
-	return new Promise((resolve, reject) => {
-		childProcess.once("exit", (code, signal) => {
-			if (code === 0 || signal == "SIGINT") {
-				resolve();
-			} else {
-				reject(new Error("Exit with error code: " + code));
-			}
-		});
-
-		childProcess.once("error", (err) => {
-			reject(err);
-		});
-	});
-}
-
-/**
- * @param {string} file
- * @param {readonly string[]} args
- * @param {import('node:child_process').ExecFileOptions} [options]
- * @returns {Promise<string>}
- */
-async function execProcess(file, args, options) {
-	const childProcess = execFile(file, args, { ...options, encoding: "utf8" });
-	let stdout = "";
-	let stderr = "";
-
-	childProcess.stdout?.pipe(
-		new Writable({
-			write(chunk, encoding, cb) {
-				stdout += chunk.toString("utf8");
-				cb(null);
-			},
-		}),
-	);
-	childProcess.stderr?.pipe(
-		new Writable({
-			write(chunk, encoding, cb) {
-				stderr += chunk.toString("utf8");
-				cb(null);
-			},
-		}),
-	);
-
-	try {
-		await waitForExit(childProcess);
-	} catch (e) {
-		console.error();
-		console.error("🚨 Failed to build preact. Here is the stdout and stderr:");
-		console.error(stdout);
-		console.error(stderr);
-		throw e;
-	}
-
-	return stdout;
-}
+export const tarballPath = pkgRoot("preact-local.tgz");
 
 export async function setup() {
 	const [preactRepoRoot, preactLocalTarballPath] = await Promise.all([
@@ -96,10 +36,29 @@ export async function setup() {
 		);
 
 		// Verify that the tarball was created and moved correctly
-		await getPreactLocalTarballPath();
+		if (!getPreactLocalTarballPath()) {
+			throw new Error("Preact tarball not found after building");
+		}
 	}
 
 	return () => Promise.resolve();
+}
+
+export async function pin() {
+	await setup();
+
+	const preactLocalTarballPath = getPreactLocalTarballPath();
+	if (!preactLocalTarballPath) throw new Error("Preact tarball not found");
+
+	execProcess(
+		"mv",
+		[
+			preactLocalTarballPath,
+			pkgRoot("../local-pinned/preact-local-pinned.tgz"),
+		],
+		{ cwd: pkgRoot() },
+	);
+	console.log("preact-local.tgz -> ../local-pinned/preact-local-pinned.tgz");
 }
 
 async function getPreactRepoRoot() {
@@ -115,6 +74,5 @@ async function getPreactRepoRoot() {
 }
 
 function getPreactLocalTarballPath() {
-	const tarballPath = pkgRoot("preact-local.tgz");
 	return existsSync(tarballPath) ? tarballPath : null;
 }

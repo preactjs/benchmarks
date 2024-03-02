@@ -61,9 +61,22 @@ export async function prepareDependencies(dependencies) {
 
 /** @type {(dependencies: DepVersion[]) => Promise<void>} */
 export async function pinLocalDependencies(dependencies) {
-	const localDeps = dependencies.filter(([name]) => name.endsWith("-local"));
-	// TODO: Implement
-	console.log("Pinning local dependencies...");
+	const depConfig = await getDepConfig(true);
+	for (let [name, version] of dependencies) {
+		const localDepConfig = depConfig[name]?.[version];
+		if (typeof localDepConfig === "string") {
+			continue;
+		}
+
+		const scriptsPath = localDepConfig.scriptsPath;
+		if (scriptsPath) {
+			/** @type {DependencyScripts} */
+			const scripts = await import(scriptsPath);
+			if (scripts.pin) {
+				await scripts.pin();
+			}
+		}
+	}
 }
 
 function reinstallDependencies() {
