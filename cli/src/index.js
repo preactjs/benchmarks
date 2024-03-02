@@ -38,41 +38,39 @@ export async function runBenchServer(dev = false, hmr = false, port) {
 export async function runBenchmarksInteractively(benchmarkFile, benchConfig) {
 	const server = await runBenchServer(false, false, benchConfig.port);
 
-	server.bindCLIShortcuts({
-		customShortcuts: [
-			// Defaults:
-			// - press r + enter to restart the server
-			// - press u + enter to show server url
-			// - press o + enter to open in browser
-			// - press c + enter to clear console
-			// - press q + enter to quit
+	const customShortcuts = [
+		// Defaults:
+		// - press r + enter to restart the server
+		// - press u + enter to show server url
+		// - press o + enter to open in browser
+		// - press c + enter to clear console
+		// - press q + enter to quit
 
-			{
-				key: "p",
-				description: "Pin current changes into prev-local",
-				async action() {
-					await pinLocalDependencies();
-				},
+		{
+			key: "p",
+			description: "Pin current local changes into local-pinned",
+			async action() {
+				await pinLocalDependencies(benchConfig.depGroups.flat());
 			},
-			{
-				key: "b",
-				description: "run Benchmark",
-				async action() {
-					console.log("\nPreparing dependencies...");
-					await prepareDependencies(benchConfig.depGroups.flat());
+		},
+		{
+			key: "b",
+			description: "run Benchmarks",
+			async action() {
+				console.log("\nPreparing dependencies...");
+				await prepareDependencies(benchConfig.depGroups.flat());
 
-					// Invalidate the module graph to ensure that the new code in dependencies
-					// is picked up
-					server.moduleGraph.invalidateAll();
+				// Invalidate the module graph to ensure that the new code in dependencies
+				// is picked up
+				server.moduleGraph.invalidateAll();
 
-					const results = await runTach(benchmarkFile, benchConfig);
+				const results = await runTach(benchmarkFile, benchConfig);
 
-					console.log("\n\n");
-					await displayResults(results);
-				},
+				console.log("\n\n");
+				await displayResults(results);
 			},
-		],
-	});
+		},
+	];
 
 	/** @type {(key: string, description: string) => void} */
 	function logShortcut(key, description) {
@@ -84,9 +82,12 @@ export async function runBenchmarksInteractively(benchmarkFile, benchConfig) {
 		);
 	}
 
+	server.bindCLIShortcuts({ customShortcuts });
 	server.printUrls();
-	logShortcut("p", "pin current changes into prev-local");
-	logShortcut("r", "rerun benchmarks");
+
+	customShortcuts.forEach((shortcut) => {
+		logShortcut(shortcut.key, shortcut.description);
+	});
 	logShortcut("h", "show help");
 
 	return server;

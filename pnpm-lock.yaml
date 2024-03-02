@@ -154,6 +154,12 @@ importers:
         specifier: file:preact-local.tgz
         version: file:dependencies/preact/local/preact-local.tgz
 
+  dependencies/preact/main:
+    dependencies:
+      preact:
+        specifier: file:preact-main.tgz
+        version: file:dependencies/preact/main/preact-main.tgz
+
   dependencies/preact/prev-minor:
     dependencies:
       preact:
@@ -3283,6 +3289,12 @@ packages:
 
   file:dependencies/preact/local/preact-local.tgz:
     resolution: {integrity: sha512-b6hgP26pRHqy7Z9BIbs5HCNwjV83CZ+45u2TEeysdGnIoNBQGgcjDjSvIotHLOcxqxkEyiGnLbwD/Ed6w7O3IQ==, tarball: file:dependencies/preact/local/preact-local.tgz}
+    name: preact
+    version: 10.19.6
+    dev: false
+
+  file:dependencies/preact/main/preact-main.tgz:
+    resolution: {integrity: sha512-LFcAhZM0AqpN9wUV7ZYO5miC8TDEl3WNU1KzKjcYLgZGyY8ZUi+14OIO04Ud2Clj43X53CRwRJC+B6VIMLfD8Q==, tarball: file:dependencies/preact/main/preact-main.tgz}
     name: preact
     version: 10.19.6
     dev: false

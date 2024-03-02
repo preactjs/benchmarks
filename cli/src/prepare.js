@@ -6,8 +6,8 @@ import { makeDepVersion, repoRoot } from "./utils.js";
 export async function prepareDependencies(dependencies) {
 	const depConfig = await getDepConfig(true);
 
-	/** @type {Array<() => Promise<void>>} */
-	const teardowns = [];
+	/** @type {Array<() => Promise<() => Promise<void>>>} */
+	const setups = [];
 	for (let [name, version] of dependencies) {
 		if (!name) continue;
 
@@ -26,14 +26,19 @@ export async function prepareDependencies(dependencies) {
 		if (scriptsPath) {
 			/** @type {DependencyScripts} */
 			const scripts = await import(scriptsPath);
-			const teardown = await scripts.setup?.();
-			if (teardown) teardowns.push(teardown);
+			if (scripts.setup) {
+				setups.push(scripts.setup);
+			}
 		}
 	}
+
+	const teardowns = await Promise.all(setups.map((setup) => setup()));
 
 	reinstallDependencies();
 
 	return async () => {
+		if (teardowns.length === 0) return;
+
 		const results = await Promise.allSettled(
 			teardowns.map((teardown) => teardown()),
 		);
@@ -54,7 +59,9 @@ export async function prepareDependencies(dependencies) {
 	};
 }
 
-export async function pinLocalDependencies() {
+/** @type {(dependencies: DepVersion[]) => Promise<void>} */
+export async function pinLocalDependencies(dependencies) {
+	const localDeps = dependencies.filter(([name]) => name.endsWith("-local"));
 	// TODO: Implement
 	console.log("Pinning local dependencies...");
 }

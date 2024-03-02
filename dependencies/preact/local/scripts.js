@@ -88,7 +88,6 @@ export async function setup() {
 		const options = { cwd: preactRepoRoot };
 		await execProcess(npmCmd, ["run", "build"], options);
 		const tarballName = await execProcess(npmCmd, ["pack"], options);
-		console.log("Packed preact tarball:", tarballName);
 
 		await execProcess(
 			"mv",
