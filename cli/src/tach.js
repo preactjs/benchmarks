@@ -1,5 +1,4 @@
 import { writeFile, mkdir } from "node:fs/promises";
-import { createRequire } from "node:module";
 import * as path from "node:path";
 import { deleteAsync } from "del";
 import { main } from "tachometer";
@@ -12,8 +11,6 @@ import {
 	repoRoot,
 	resultsPath,
 } from "./utils.js";
-
-const require = createRequire(import.meta.url);
 
 const measureName = "duration"; // Must match measureName in '../src/util.js'
 const TACH_SCHEMA =
@@ -129,26 +126,6 @@ async function generateTachConfig(benchmarkFile, benchConfig) {
 	await writeFile(tachConfigPath, JSON.stringify(tachConfig, null, 2), "utf8");
 
 	return { name: baseName, configPath: tachConfigPath, config: tachConfig };
-}
-
-/**
- * @param {import('child_process').ChildProcess} childProcess
- * @returns {Promise<void>}
- */
-async function waitForExit(childProcess) {
-	return new Promise((resolve, reject) => {
-		childProcess.once("exit", (code, signal) => {
-			if (code === 0 || signal == "SIGINT") {
-				resolve();
-			} else {
-				reject(new Error("Exit with error code: " + code));
-			}
-		});
-
-		childProcess.once("error", (err) => {
-			reject(err);
-		});
-	});
 }
 
 /** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<TachResult[]>} */
