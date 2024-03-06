@@ -2,6 +2,10 @@
 preact-bench.config.js
 out
 
+# Added here so tools like prettier ignore this file, event though we have force
+# added to the git repository.
+pnpm-lock.yaml
+
 
 # Logs
 logs
