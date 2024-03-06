@@ -14,7 +14,7 @@
       "import": "./node_modules/preact/hooks/dist/hooks.module.js"
     }
   },
-  "dependencies": {
+  "optionalDependencies": {
     "preact": "file:preact-local.tgz"
   }
 }
