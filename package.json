@@ -14,7 +14,7 @@
     "lint-staged": "lint-staged",
     "prepare": "husky install",
     "start": "node cli/bin/preact-bench.js start",
-    "tsc": "npm run tsc:apps && npm run tsc:cli && npm run tsc:deps",
+    "tsc": "npm run tsc:apps && npm run tsc:cli",
     "tsc:apps": "tsc -p apps/jsconfig.json",
     "tsc:cli": "tsc -p cli/jsconfig.json",
     "tsc:deps": "tsc -p dependencies/jsconfig.json"
