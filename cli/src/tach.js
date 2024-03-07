@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { deleteAsync } from "del";
 import { main } from "tachometer";
 import {
+	appFilePath,
 	baseTraceLogDir,
 	configDir,
 	getBenchmarkBaseName,
@@ -20,7 +21,7 @@ const TACH_SCHEMA =
 function getMeasurements(benchName) {
 	/** @type {TachBenchmarkConfig["measurement"]} */
 	let measurement;
-	if (benchName == "replace1k") {
+	if (benchName == "table-app/replace1k") {
 		// MUST BE KEPT IN SYNC WITH WARMUP COUNT IN 02_replace1k.html
 		const WARMUP_COUNT = 5;
 
@@ -75,13 +76,15 @@ function getMeasurements(benchName) {
 /**
  * @param {string} benchmarkFile
  * @param {BenchmarkConfig} benchConfig
- * @returns {Promise<{ name: string; configPath: string; config: TachConfig; }>}
+ * @returns {Promise<{ basePath: string; configPath: string; config: TachConfig; }>}
  */
 async function generateTachConfig(benchmarkFile, benchConfig) {
-	const baseName = getBenchmarkBaseName(benchmarkFile);
+	const basePath = path
+		.relative(appFilePath(), benchmarkFile)
+		.replace(/\.html$/, "");
 
 	if (benchConfig.browser.name == "chrome" && benchConfig.trace) {
-		const traceLogDir = baseTraceLogDir(baseName);
+		const traceLogDir = baseTraceLogDir(basePath);
 		await deleteAsync("**/*", { cwd: traceLogDir });
 		await mkdir(traceLogDir, { recursive: true });
 
@@ -90,13 +93,14 @@ async function generateTachConfig(benchmarkFile, benchConfig) {
 		};
 	}
 
-	const measurement = getMeasurements(baseName);
+	const measurement = getMeasurements(basePath);
 	const baseBenchConfig = { measurement, browser: benchConfig.browser };
 
 	const baseUrl = new URL("http://localhost:" + benchConfig.port);
 
 	/** @type {TachBenchmarkConfig["expand"]} */
 	const expand = [];
+	const baseName = getBenchmarkBaseName(benchmarkFile);
 	for (let impl of benchConfig.implementations) {
 		for (let depGroup of benchConfig.depGroups) {
 			expand.push({
@@ -121,19 +125,22 @@ async function generateTachConfig(benchmarkFile, benchConfig) {
 		],
 	};
 
-	const tachConfigPath = configDir(baseName + ".config.json");
+	const tachConfigPath = configDir(basePath + ".config.json");
 	await mkdir(path.dirname(tachConfigPath), { recursive: true });
 	await writeFile(tachConfigPath, JSON.stringify(tachConfig, null, 2), "utf8");
 
-	return { name: baseName, configPath: tachConfigPath, config: tachConfig };
+	return { basePath, configPath: tachConfigPath, config: tachConfig };
 }
 
 /** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<TachResult[]>} */
 export async function runTach(benchmarkFile, benchConfig) {
-	const { name, configPath } = await generateTachConfig(
+	const { basePath, configPath } = await generateTachConfig(
 		benchmarkFile,
 		benchConfig,
 	);
+
+	const jsonFilePath = resultsPath(basePath + ".json");
+	await mkdir(path.dirname(jsonFilePath), { recursive: true });
 
 	/** @type {TachResult[] | undefined} */
 	let results;
@@ -143,12 +150,7 @@ export async function runTach(benchmarkFile, benchConfig) {
 	const realLog = console.log;
 	try {
 		console.log = () => {};
-		results = await main([
-			"--config",
-			configPath,
-			"--json-file",
-			resultsPath(name + ".json"),
-		]);
+		results = await main(["--config", configPath, "--json-file", jsonFilePath]);
 	} finally {
 		console.log = realLog;
 	}

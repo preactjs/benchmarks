@@ -326,7 +326,12 @@ async function analyzeAction(requestedBench) {
 		return;
 	}
 
-	const benchmarkNames = await readdir(baseTraceLogDir());
+	const benchmarkNames = [];
+	for (let dirName of await readdir(baseTraceLogDir())) {
+		for (let benchmarkName of await readdir(baseTraceLogDir(dirName))) {
+			benchmarkNames.push(`${dirName}/${benchmarkName}`);
+		}
+	}
 
 	/** @type {string} */
 	let selectedBench;
