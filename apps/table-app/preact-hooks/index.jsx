@@ -48,7 +48,7 @@ function Main({ store: initialStore }) {
 	/** @type {preact.RefObject<Store | undefined>} */
 	const storeRef = useRef();
 	if (storeRef.current == null) {
-		storeRef.current = initialStore ?? new Store();
+		storeRef.current = initialStore;
 	}
 
 	const store = storeRef.current;
@@ -115,14 +115,16 @@ function Main({ store: initialStore }) {
 	);
 }
 
-/** @type {(rootDom: HTMLElement, props: MainProps ) => TableApp} */
+/** @type {(rootDom: HTMLElement, props?: MainProps ) => TableApp} */
 export function render(rootDom, props) {
+	if (!props) props = { store: new Store() };
 	preactRender(<Main {...props} />, rootDom);
 	return app;
 }
 
-/** @type {(rootDom: HTMLElement, props: MainProps ) => TableApp} */
+/** @type {(rootDom: HTMLElement, props?: MainProps ) => TableApp} */
 export function hydrate(rootDom, props) {
+	if (!props) props = { store: new Store() };
 	preactHydrate(<Main {...props} />, rootDom);
 	return app;
 }

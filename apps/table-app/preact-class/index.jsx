@@ -60,7 +60,7 @@ export class Main extends Component {
 	/** @param {MainProps} props */
 	constructor(props) {
 		super(props);
-		this.state = { store: props.store ?? new Store() };
+		this.state = { store: props.store };
 		this.select = this.select.bind(this);
 		this.delete = this.delete.bind(this);
 
@@ -128,6 +128,7 @@ export class Main extends Component {
 
 /** @type {(rootDom: HTMLElement, props: MainProps ) => TableApp} */
 export function render(rootDom, props) {
+	if (!props) props = { store: new Store() };
 	preactRender(<Main {...props} />, rootDom);
 
 	/** @type {import('../_shared/store.js').TableApp} */
@@ -145,8 +146,9 @@ export function render(rootDom, props) {
 	};
 }
 
-/** @type {(rootDom: HTMLElement, props: MainProps ) => TableApp} */
+/** @type {(rootDom: HTMLElement, props?: MainProps ) => TableApp} */
 export function hydrate(rootDom, props) {
+	if (!props) props = { store: new Store() };
 	preactHydrate(<Main {...props} />, rootDom);
 
 	/** @type {import('../_shared/store.js').TableApp} */
