@@ -21,7 +21,7 @@ const IS_CI = process.env.CI === "true";
 const defaultBenchOptions = {
 	interactive: false,
 	dependency: "@latest",
-	impl: "preact-class",
+	impl: "preact",
 	// Tachometer default is 50, but locally let's only do 25
 	"sample-size": !IS_CI ? 25 : 50,
 	// Tachometer default is 10% but let's do 5% to save some GitHub action
