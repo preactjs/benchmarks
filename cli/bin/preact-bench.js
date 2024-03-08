@@ -5,7 +5,11 @@ import { readdir } from "node:fs/promises";
 import inquirer from "inquirer";
 import sade from "sade";
 import { analyze } from "../src/analyze.js";
-import { runBenchServer, runBenchmarks } from "../src/index.js";
+import {
+	runBenchServer,
+	runBenchmarks,
+	runBenchmarksInteractively,
+} from "../src/index.js";
 import { getAppConfig, getDepConfig } from "../src/config.js";
 import {
 	baseTraceLogDir,
@@ -322,7 +326,12 @@ async function analyzeAction(requestedBench) {
 		return;
 	}
 
-	const benchmarkNames = await readdir(baseTraceLogDir());
+	const benchmarkNames = [];
+	for (let dirName of await readdir(baseTraceLogDir())) {
+		for (let benchmarkName of await readdir(baseTraceLogDir(dirName))) {
+			benchmarkNames.push(`${dirName}/${benchmarkName}`);
+		}
+	}
 
 	/** @type {string} */
 	let selectedBench;
@@ -360,8 +369,56 @@ async function analyzeAction(requestedBench) {
 
 const prog = sade("preact-bench").version("0.0.0");
 
-prog
-	.command("bench [benchmark_file]")
+/** @type {(cmd: import('sade').Sade) => import('sade').Sade} */
+function setupBenchmarkCLIArgs(cmd) {
+	cmd
+		.option("--interactive", "Prompt for options", false)
+		.option(
+			"-d, --dependency",
+			"What group of dependencies (comma-delimited) and version to use for a run of the benchmark (package@version)",
+			defaultBenchOptions.dependency,
+		)
+		.option(
+			"-i, --impl",
+			"What implementation of the benchmark to run",
+			defaultBenchOptions.impl,
+		)
+		.option(
+			"-n, --sample-size",
+			"Minimum number of times to run each benchmark",
+			defaultBenchOptions["sample-size"],
+		)
+		.option(
+			"-h, --horizon",
+			'The degrees of difference to try and resolve when auto-sampling ("N%" or "Nms", comma-delimited)',
+			defaultBenchOptions.horizon,
+		)
+		.option(
+			"-t, --timeout",
+			"Maximum number of minutes to spend auto-sampling",
+			defaultBenchOptions.timeout,
+		)
+		.option(
+			"--trace",
+			"Enable performance tracing (Chrome only)",
+			defaultBenchOptions.trace,
+		)
+		.option("--debug", "Enable debug logging", defaultBenchOptions.debug)
+		.option(
+			"-b, --browser",
+			"Which browser to run the benchmarks in: chrome, chrome-headless, firefox, firefox-headless, safari, edge",
+			defaultBenchOptions.browser,
+		)
+		.option(
+			"-p, --port",
+			"What port to run the benchmark server on",
+			defaultBenchOptions.port,
+		);
+
+	return cmd;
+}
+
+setupBenchmarkCLIArgs(prog.command("bench [benchmark_file]"))
 	.describe(
 		"Run the given benchmark using the specified implementation with the specified dependencies. If no benchmark file, no dependencies, or no implementations are specified, will prompt for one.",
 	)
@@ -375,57 +432,26 @@ prog
 		"bench apps/todo/todo.html -d preact@local,signals@local -d preact@main,signals@local -i preact-signals -n 2 -t 0",
 	)
 	.example("bench apps/todo/todo.html -d preact@local -d preact@main --trace")
-	.option(
-		"--interactive",
-		"Prompt for options. Defaults to true of no benchmark file, dependencies, or implementations are specified",
-		defaultBenchOptions.interactive,
-	)
-	.option(
-		"-d, --dependency",
-		"What group of dependencies (comma-delimited) and version to use for a run of the benchmark (package@version)",
-		defaultBenchOptions.dependency,
-	)
-	.option(
-		"-i, --impl",
-		"What implementation of the benchmark to run",
-		defaultBenchOptions.impl,
-	)
-	.option(
-		"-n, --sample-size",
-		"Minimum number of times to run each benchmark",
-		defaultBenchOptions["sample-size"],
-	)
-	.option(
-		"-h, --horizon",
-		'The degrees of difference to try and resolve when auto-sampling ("N%" or "Nms", comma-delimited)',
-		defaultBenchOptions.horizon,
-	)
-	.option(
-		"-t, --timeout",
-		"Maximum number of minutes to spend auto-sampling",
-		defaultBenchOptions.timeout,
-	)
-	.option(
-		"--trace",
-		"Enable performance tracing (Chrome only)",
-		defaultBenchOptions.trace,
-	)
-	.option("--debug", "Enable debug logging", defaultBenchOptions.debug)
-	.option(
-		"-b, --browser",
-		"Which browser to run the benchmarks in: chrome, chrome-headless, firefox, firefox-headless, safari, edge",
-		defaultBenchOptions.browser,
-	)
-	.option(
-		"-p, --port",
-		"What port to run the benchmark server on",
-		defaultBenchOptions.port,
-	)
 	.action(benchAction);
+
+setupBenchmarkCLIArgs(prog.command("dev [benchmark_file]"))
+	.describe(
+		"Run a dev server to interactively run a benchmark while developing changes",
+	)
+	.example(
+		"dev apps/todo/todo.html -d preact@local -d preact@main -i preact-hooks",
+	)
+	.example(
+		"dev apps/todo/todo.html -d preact@local -d preact@local-pinned -i preact-hooks",
+	)
+	.action((benchmarkFile, args) => {
+		const benchConfig = parseBenchmarkCLIArgs(args);
+		runBenchmarksInteractively(benchmarkFile, benchConfig);
+	});
 
 prog
 	.command("start")
-	.describe("Run a dev server - useful when building benchmarks")
+	.describe("Run a server to serve benchmark HTML files")
 	.option(
 		"-p, --port",
 		"What port to run the benchmark server on",

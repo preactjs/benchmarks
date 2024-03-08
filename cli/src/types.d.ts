@@ -32,8 +32,7 @@ interface BenchmarkConfig {
 
 interface DependencyConfig {
 	path: string;
-	setup?: string;
-	teardown?: string;
+	scriptsPath?: string;
 }
 
 interface BenchmarkAppConfig {
@@ -140,4 +139,9 @@ declare module "jstat" {
 		/** https://jstat.github.io/all.html#jStat.normal.inv */
 		inv(p: number, mean: number, stdDev: number): number;
 	};
+}
+
+interface DependencyScripts {
+	setup?(): Promise<() => Promise<void>>;
+	pin?(): Promise<void>;
 }

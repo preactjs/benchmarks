@@ -1,0 +1,20 @@
+{
+  "name": "preact-main",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    },
+    "./compat": {
+      "import": "./node_modules/preact/compat/dist/compat.module.js"
+    },
+    "./hooks": {
+      "import": "./node_modules/preact/hooks/dist/hooks.module.js"
+    }
+  },
+  "optionalDependencies": {
+    "preact": "file:preact-main.tgz"
+  }
+}

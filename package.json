@@ -7,13 +7,14 @@
   "scripts": {
     "analyze": "node cli/bin/preact-bench.js analyze",
     "bench": "node cli/bin/preact-bench.js bench",
+    "dev": "node cli/bin/preact-bench.js dev",
     "format": "prettier --no-error-on-unmatched-pattern --write **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
     "lint": "pnpm lint:format && pnpm tsc",
     "lint:format": "prettier --no-error-on-unmatched-pattern --check **/*.{js,jsx,ts,tsx,css,md,html,yml,yaml,json}",
     "lint-staged": "lint-staged",
     "prepare": "husky install",
     "start": "node cli/bin/preact-bench.js start",
-    "tsc": "npm run tsc:apps && npm run tsc:cli && npm run tsc:deps",
+    "tsc": "npm run tsc:apps && npm run tsc:cli",
     "tsc:apps": "tsc -p apps/jsconfig.json",
     "tsc:cli": "tsc -p cli/jsconfig.json",
     "tsc:deps": "tsc -p dependencies/jsconfig.json"
@@ -41,6 +42,7 @@
     ]
   },
   "devDependencies": {
+    "chromedriver": "*",
     "concurrently": "^8.2.2",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",

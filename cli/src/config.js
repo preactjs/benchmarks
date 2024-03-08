@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs, { existsSync } from "fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { appFilePath, depFilePath } from "./utils.js";
@@ -117,7 +117,16 @@ export async function getDepConfig(useCache = false) {
 		const version = depDir.slice(index + 1);
 
 		if (!dependencies[depName]) dependencies[depName] = {};
-		dependencies[depName][version] = depDir;
+
+		const scriptsPath = depFilePath(depDir, "scripts.js");
+		if (existsSync(scriptsPath)) {
+			dependencies[depName][version] = {
+				path: depDir,
+				scriptsPath,
+			};
+		} else {
+			dependencies[depName][version] = depDir;
+		}
 	}
 
 	depConfigCache = dependencies;
