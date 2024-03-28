@@ -1,4 +1,5 @@
 import kleur from "kleur";
+import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { createServer } from "vite";
 import { dependencyPlugin } from "./plugins/dependencyPlugin.js";
@@ -98,6 +99,10 @@ export async function runBenchmarksInteractively(benchmarkFile, benchConfig) {
 
 /** @type {(benchmarkFile: string, benchConfig: BenchmarkConfig) => Promise<void>} */
 export async function runBenchmarks(benchmarkFile, benchConfig) {
+	if (!existsSync(benchmarkFile)) {
+		throw new Error(`Benchmark file not found: ${benchmarkFile}`);
+	}
+
 	await mkdir(resultsPath(), { recursive: true });
 
 	console.log("Preparing dependencies...");
