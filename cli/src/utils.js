@@ -67,22 +67,25 @@ export function getBenchmarkURL(baseURL, benchmarkFile, dependencies, impl) {
 	return url;
 }
 
-/** @type {(benchmarkFile: string) => string} */
-export function getBenchmarkBaseName(benchmarkFile) {
-	return path.basename(benchmarkFile).replace(".html", "");
-}
-
 /**
- * @typedef {{ fullName: string; baseName: string;  implId: string; depGroupId: string; dependencies: DependencyGroup; measureName?: string; }} BenchmarkId
- * @type {(baseName: string, dependencies: DependencyGroup, implId: string) => BenchmarkId}
+ * @typedef {{ baseName: string; implId: string; depGroupId: string; dependencies: DepVersion[]; }} BenchmarkURL
+ * @type {(url: string | URL) => BenchmarkURL}
  */
-export function getBenchmarkId(baseName, dependencies, impl) {
+export function parseBenchmarkURL(url) {
+	if (typeof url === "string") {
+		url = new URL(url);
+	}
+
+	const baseName = path.basename(url.pathname).replace(".html", "");
+	const impl = url.searchParams.get("impl") ?? "";
+	const dependencies = url.searchParams
+		.getAll("dep")
+		.map((dep) => parseDepVersion(dep));
 	const depGroupId = dependencies
 		.map(([name, version]) => makeDepVersion(name, version))
 		.join(", ");
 
 	return {
-		fullName: `${baseName} (${impl}) (${depGroupId})`,
 		baseName,
 		depGroupId,
 		dependencies,
@@ -90,25 +93,9 @@ export function getBenchmarkId(baseName, dependencies, impl) {
 	};
 }
 
-/** @type {(benchId: string) => BenchmarkId} */
-export function parseBenchmarkId(benchId) {
-	const match = benchId.match(/^(.*) \((.*)\) \((.*)\)/);
-	if (!match) {
-		throw new Error(`Invalid benchmark ID: ${benchId}`);
-	}
-
-	const [, baseName, implId, depGroupId, measureName] = match;
-	return {
-		fullName: benchId,
-		baseName,
-		implId,
-		depGroupId,
-		dependencies: depGroupId.split(", ").map((dep) => {
-			const [name, version] = dep.split("@");
-			return [name, version];
-		}),
-		measureName,
-	};
+/** @type {(benchmarkFile: string) => string} */
+export function getBenchmarkBaseName(benchmarkFile) {
+	return path.basename(benchmarkFile).replace(".html", "");
 }
 
 export const versionSep = "@";
@@ -124,24 +111,7 @@ export function makeDepVersion(name, version) {
 	return `${name}${versionSep}${version}`;
 }
 
-/** @type {(dependencies: DependencyGroup) => string} */
-export function makeDepGroupLabel(dependencies) {
-	return dependencies
-		.map(([name, version]) => makeDepVersion(name, version))
-		.join("\n");
-}
-
-/** @type {(implementation: string | null, depGroup: DependencyGroup | null) => string} */
-export function makeBenchmarkLabel(implementation, depGroup) {
-	if (!implementation && !depGroup) {
-		throw new Error(
-			"At least one of implementation or depGroup must be provided",
-		);
-	}
-
-	let label = "";
-	if (implementation) label += implementation + "\n";
-	if (depGroup) label += makeDepGroupLabel(depGroup);
-
-	return label;
+/** @type {(version: string) => string} */
+export function makeBenchmarkLabel(version) {
+	return version.replace(/ +/g, "\n");
 }

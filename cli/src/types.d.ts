@@ -32,8 +32,7 @@ interface BenchmarkConfig {
 
 interface DependencyConfig {
 	path: string;
-	setup?: string;
-	teardown?: string;
+	scriptsPath?: string;
 }
 
 interface BenchmarkAppConfig {
@@ -94,7 +93,8 @@ type BrowserInfo = TachResult["result"]["browser"];
  * The values & stats for one variation (implementation + dependencies) of a benchmark
  */
 interface VariationResult {
-	fullName: string;
+	name: string;
+	version: string;
 	implementation: string;
 	depGroupId: string;
 	dependencies: DependencyGroup;
@@ -140,4 +140,9 @@ declare module "jstat" {
 		/** https://jstat.github.io/all.html#jStat.normal.inv */
 		inv(p: number, mean: number, stdDev: number): number;
 	};
+}
+
+interface DependencyScripts {
+	setup?(): Promise<() => Promise<void>>;
+	pin?(): Promise<void>;
 }
