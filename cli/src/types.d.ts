@@ -93,7 +93,7 @@ type BrowserInfo = TachResult["result"]["browser"];
  * The values & stats for one variation (implementation + dependencies) of a benchmark
  */
 interface VariationResult {
-	fullName: string;
+	name: string;
 	implementation: string;
 	depGroupId: string;
 	dependencies: DependencyGroup;

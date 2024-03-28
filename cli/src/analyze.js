@@ -1,10 +1,6 @@
 import { existsSync } from "fs";
 import { readFile, readdir } from "fs/promises";
-import {
-	baseTraceLogDir,
-	makeBenchmarkLabel,
-	parseBenchmarkId,
-} from "./utils.js";
+import { baseTraceLogDir, makeBenchmarkLabel } from "./utils.js";
 
 import { summaryStats, computeDifferences } from "tachometer/lib/stats.js";
 import {
@@ -307,21 +303,22 @@ export async function analyze(selectedBench) {
 	/** @type {Map<string, ResultStats[]>} */
 	const resultStatsMap = new Map();
 	for (let benchName of benchmarkNames) {
-		const { implId, dependencies } = parseBenchmarkId(benchName);
 		const logDir = baseTraceLogDir(selectedBench, benchName);
 
 		let logFilePaths;
 		try {
-			logFilePaths = (await readdir(logDir)).map((fn) =>
-				baseTraceLogDir(selectedBench, benchName, fn),
-			);
+			logFilePaths = (await readdir(logDir, { withFileTypes: true }))
+				.filter((dirEntry) => dirEntry.isFile())
+				.map((dirEntry) =>
+					baseTraceLogDir(selectedBench, benchName, dirEntry.name),
+				);
 		} catch (e) {
 			// If directory doesn't exist or we fail to read it, just skip
 			continue;
 		}
 
 		const resultStats = await getStatsFromLogs(
-			makeBenchmarkLabel(implId, dependencies),
+			makeBenchmarkLabel(benchName),
 			logFilePaths,
 			getDurationThread,
 			isDurationLog,

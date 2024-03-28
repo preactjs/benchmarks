@@ -7,8 +7,8 @@ import {
 	baseTraceLogDir,
 	configDir,
 	getBenchmarkBaseName,
-	getBenchmarkId,
 	getBenchmarkURL,
+	makeDepVersion,
 	repoRoot,
 	resultsPath,
 } from "./utils.js";
@@ -74,6 +74,43 @@ function getMeasurements(benchName) {
 }
 
 /**
+ * Given a benchmark configuration, determine the label for a benchmark based on
+ * the implementation and dependency group, not including implementations or dep
+ * groups if there is only one in the configuration.
+ * @param {BenchmarkConfig} benchConfig
+ * @returns {(impl: string, depGroup: DependencyGroup) => string}
+ */
+function createBenchmarkNameFactory(benchConfig) {
+	const { implementations, depGroups } = benchConfig;
+	const implCount = implementations.length;
+	const depGroupCount = depGroups.length;
+
+	return (impl, depGroup) => {
+		if (implCount == 1 && depGroupCount == 1) {
+			const depGroupLabel = depGroup
+				.map(([name, version]) => makeDepVersion(name, version))
+				.join(" ");
+
+			return `${impl} ${depGroupLabel}`;
+		}
+
+		let label = "";
+		if (implCount > 1) {
+			label += impl;
+		}
+
+		if (depGroupCount > 1) {
+			if (label) label += " ";
+			label += depGroup
+				.map(([name, version]) => makeDepVersion(name, version))
+				.join(" ");
+		}
+
+		return label;
+	};
+}
+
+/**
  * @param {string} benchmarkFile
  * @param {BenchmarkConfig} benchConfig
  * @returns {Promise<{ basePath: string; configPath: string; config: TachConfig; }>}
@@ -98,13 +135,15 @@ async function generateTachConfig(benchmarkFile, benchConfig) {
 
 	const baseUrl = new URL("http://localhost:" + benchConfig.port);
 
+	const getName = createBenchmarkNameFactory(benchConfig);
+
 	/** @type {TachBenchmarkConfig["expand"]} */
 	const expand = [];
 	const baseName = getBenchmarkBaseName(benchmarkFile);
 	for (let impl of benchConfig.implementations) {
 		for (let depGroup of benchConfig.depGroups) {
 			expand.push({
-				name: getBenchmarkId(baseName, depGroup, impl).fullName,
+				name: getName(impl, depGroup),
 				url: getBenchmarkURL(baseUrl, benchmarkFile, depGroup, impl).toString(),
 			});
 		}

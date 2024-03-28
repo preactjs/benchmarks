@@ -3,8 +3,8 @@ import table from "table";
 import { computeStats } from "./stats.js";
 import {
 	makeBenchmarkLabel,
-	makeDepGroupLabel,
-	parseBenchmarkId,
+	makeDepVersion,
+	parseBenchmarkURL,
 } from "./utils.js";
 
 /** @type {(results: TachResult[]) => Promise<void>} */
@@ -29,8 +29,8 @@ function buildBenchmarkResults(tachResults) {
 	const results = [];
 
 	for (const tachResult of tachResults) {
-		const { baseName, implId, depGroupId, dependencies } = parseBenchmarkId(
-			tachResult.result.name,
+		const { baseName, implId, depGroupId, dependencies } = parseBenchmarkURL(
+			tachResult.result.url,
 		);
 
 		const measureName = tachResult.result.measurement.name;
@@ -51,7 +51,8 @@ function buildBenchmarkResults(tachResults) {
 
 		const samples = tachResult.result.millis;
 		benchmarkResult.variations.push({
-			fullName: tachResult.result.name,
+			// Remove the measure name that Tachometer adds to the benchmark name.
+			name: tachResult.result.name.replace(/\s*\[.*\]\s*/, ""),
 			implementation: implId,
 			depGroupId,
 			dependencies,
@@ -97,11 +98,15 @@ const implementationDimension = {
 	label: "Implementation",
 };
 
-/** @type {Dimension} */
-const depGroupDimension = {
-	format: (r) => makeDepGroupLabel(r.dependencies),
+/** @type {(fixed: boolean) => Dimension} */
+const depGroupDimension = (fixed) => ({
+	format: (r) => {
+		return r.dependencies
+			.map(([name, version]) => makeDepVersion(name, version))
+			.join(fixed ? " " : "\n");
+	},
 	label: "Dependency Group",
-};
+});
 
 /** @type {(format: (n: number) => string) => Dimension} */
 const createMeanValueDimension = (format) => ({
@@ -137,31 +142,24 @@ function displayTable(benchmarkResults) {
 		const fixedDimensions = [
 			...(sampleSizeSet.size === 1 ? [sampleSizeDimension] : []),
 			...(implSet.size === 1 ? [implementationDimension] : []),
-			...(depGroupSet.size === 1 ? [depGroupDimension] : []),
+			...(depGroupSet.size === 1 ? [depGroupDimension(true)] : []),
 		];
 
 		const varyingDimensions = [
 			...(implSet.size === 1 ? [] : [implementationDimension]),
-			...(depGroupSet.size === 1 ? [] : [depGroupDimension]),
+			...(depGroupSet.size === 1 ? [] : [depGroupDimension(false)]),
 			...(sampleSizeSet.size === 1 ? [] : [sampleSizeDimension]),
 		];
 
 		/** @type {Dimension[]} */
 		const vsDimensions = [];
 		if (benchmarkResult.variations.length > 1) {
-			const includeDepGroup = depGroupSet.size > 1;
-			const includeImpl = implSet.size > 1;
-
 			for (let i = 0; i < benchmarkResult.variations.length; i++) {
 				const variation = benchmarkResult.variations[i];
+				const variationName = makeBenchmarkLabel(variation.name);
 
 				vsDimensions.push({
-					label:
-						"vs " +
-						makeBenchmarkLabel(
-							includeImpl ? variation.implementation : null,
-							includeDepGroup ? variation.dependencies : null,
-						),
+					label: "vs " + variationName,
 					format: (r) => {
 						const diff = r.differences[i];
 						if (!diff) return kleur.gray("\n-");

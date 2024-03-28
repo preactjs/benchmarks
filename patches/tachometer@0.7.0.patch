@@ -1,5 +1,5 @@
 diff --git a/lib/runner.js b/lib/runner.js
-index 6035a824b3dfc0a0e844e789d3553c3a4d3fac69..34237a66f403f1b7df3e73637604d93a92ecbb7b 100644
+index 6035a824b3dfc0a0e844e789d3553c3a4d3fac69..916de817eb984b006e40c2748643b7eb1893ed29 100644
 --- a/lib/runner.js
 +++ b/lib/runner.js
 @@ -48,7 +48,7 @@ export class Runner {
@@ -11,3 +11,26 @@ index 6035a824b3dfc0a0e844e789d3553c3a4d3fac69..34237a66f403f1b7df3e73637604d93a
          await this.warmup();
          await this.takeMinimumSamples();
          await this.takeAdditionalSamples();
+@@ -264,6 +264,7 @@ export class Runner {
+             name: spec.measurement.length === 1
+                 ? spec.name
+                 : `${spec.name} [${measurementName(measurement)}]`,
++            url,
+             measurement,
+             measurementIndex: measurementIndex,
+             queryString: spec.url.kind === 'local' ? spec.url.queryString : '',
+diff --git a/lib/types.d.ts b/lib/types.d.ts
+index 58dc02d2250c54318d7bb7ccca588f478edbba4d..382a26d528db29598bfe831d284079c6103e1efb 100644
+--- a/lib/types.d.ts
++++ b/lib/types.d.ts
+@@ -96,6 +96,10 @@ export interface BenchmarkResult {
+      * contain both the page and measurement labels as "page [measurement]".
+      */
+     name: string;
++    /**
++     * The URL this benchmark result was collected from
++     */
++    url: string;
+     /**
+      * The measurement that produced this result
+      */
