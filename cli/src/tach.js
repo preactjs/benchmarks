@@ -109,28 +109,21 @@ function createVersionLabelFactory(benchConfig) {
 		// Backwards compatibility for Preact's pr-reporter workflow which always
 		// runs the workflow file from the `main` branch and so it harder to update
 		// and test
-		console.log(
-			"process.env",
-			Object.keys(process.env)
-				.sort()
-				.reduce((obj, key) => {
-					obj[key] = process.env[key];
-					return obj;
-				}, {}),
-		);
 		if (
 			process.env.GITHUB_ACTIONS === "true" &&
 			process.env.GITHUB_REPOSITORY === "preactjs/preact"
 		) {
-			console.log("label:", label);
-
 			if (label === "preact@main") {
-				console.log("preact@main => preact-main");
+				console.log(
+					'Changing label "preact@main" to "preact-main" for GH Actions comment back-compat',
+				);
 				return "preact-main";
 			}
 
 			if (label === "preact@local-pinned") {
-				console.log("preact@local-pinned => preact-local");
+				console.log(
+					'Changing label "preact@local-pinned" to "preact-local" for GH Actions comment back-compat',
+				);
 				return "preact-local";
 			}
 		}
