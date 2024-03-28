@@ -94,6 +94,7 @@ type BrowserInfo = TachResult["result"]["browser"];
  */
 interface VariationResult {
 	name: string;
+	version: string;
 	implementation: string;
 	depGroupId: string;
 	dependencies: DependencyGroup;

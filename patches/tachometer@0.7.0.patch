@@ -1,5 +1,58 @@
+diff --git a/lib/configfile.js b/lib/configfile.js
+index ba1c7c9d1e97ff4622dfa3ecfdacd63cf422ad22..e8f831306dbf6f9241cd21d283f9dc4139b41b51 100644
+--- a/lib/configfile.js
++++ b/lib/configfile.js
+@@ -149,12 +149,12 @@ async function parseBenchmark(benchmark, root, configFilePath) {
+                 urlPath: await urlFromLocalPath(root, path.resolve(path.dirname(configFilePath), urlPath)),
+                 queryString,
+             };
+-            if (benchmark.packageVersions !== undefined) {
+-                spec.url.version = {
+-                    label: benchmark.packageVersions.label,
+-                    dependencyOverrides: benchmark.packageVersions.dependencies,
+-                };
+-            }
++        }
++        if (benchmark.packageVersions !== undefined) {
++            spec.url.version = {
++                label: benchmark.packageVersions.label,
++                dependencyOverrides: benchmark.packageVersions.dependencies,
++            };
+         }
+     }
+     return spec;
+diff --git a/lib/format.js b/lib/format.js
+index 603e12718dd6df1d8e47b1b610ccc04a5695bf05..ba92c6b4471a436f90ea792090730b30acc75912 100644
+--- a/lib/format.js
++++ b/lib/format.js
+@@ -296,7 +296,7 @@ export function makeUniqueSpecLabelFn(specs) {
+     for (const spec of specs) {
+         names.add(spec.name);
+         browsers.add(spec.browser.name);
+-        if (spec.url.kind === 'local' && spec.url.version !== undefined) {
++        if (spec.url.version !== undefined) {
+             versions.add(spec.url.version.label);
+         }
+     }
+@@ -314,7 +314,6 @@ export function makeUniqueSpecLabelFn(specs) {
+             }
+         }
+         if (versions.size > 1 &&
+-            spec.url.kind === 'local' &&
+             spec.url.version !== undefined) {
+             fields.push(spec.url.version.label);
+         }
+@@ -331,7 +330,7 @@ export function makeUniqueSpecLabelFn(specs) {
+  */
+ export function benchmarkOneLiner(spec) {
+     let maybeVersion = '';
+-    if (spec.url.kind === 'local' && spec.url.version !== undefined) {
++    if (spec.url.version !== undefined) {
+         maybeVersion = ` [@${spec.url.version.label}]`;
+     }
+     return `${spec.browser.name} ${spec.name}${maybeVersion}`;
 diff --git a/lib/runner.js b/lib/runner.js
-index 6035a824b3dfc0a0e844e789d3553c3a4d3fac69..916de817eb984b006e40c2748643b7eb1893ed29 100644
+index 6035a824b3dfc0a0e844e789d3553c3a4d3fac69..2c6b72d2c4ced6b1eb694a58109dcc41ab379017 100644
 --- a/lib/runner.js
 +++ b/lib/runner.js
 @@ -48,7 +48,7 @@ export class Runner {
@@ -11,7 +64,7 @@ index 6035a824b3dfc0a0e844e789d3553c3a4d3fac69..916de817eb984b006e40c2748643b7eb
          await this.warmup();
          await this.takeMinimumSamples();
          await this.takeAdditionalSamples();
-@@ -264,6 +264,7 @@ export class Runner {
+@@ -264,10 +264,11 @@ export class Runner {
              name: spec.measurement.length === 1
                  ? spec.name
                  : `${spec.name} [${measurementName(measurement)}]`,
@@ -19,6 +72,11 @@ index 6035a824b3dfc0a0e844e789d3553c3a4d3fac69..916de817eb984b006e40c2748643b7eb
              measurement,
              measurementIndex: measurementIndex,
              queryString: spec.url.kind === 'local' ? spec.url.queryString : '',
+-            version: spec.url.kind === 'local' && spec.url.version !== undefined
++            version: spec.url.version !== undefined
+                 ? spec.url.version.label
+                 : '',
+             millis: [measurementResults[measurementIndex]],
 diff --git a/lib/types.d.ts b/lib/types.d.ts
 index 58dc02d2250c54318d7bb7ccca588f478edbba4d..382a26d528db29598bfe831d284079c6103e1efb 100644
 --- a/lib/types.d.ts

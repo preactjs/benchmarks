@@ -111,7 +111,7 @@ export function makeDepVersion(name, version) {
 	return `${name}${versionSep}${version}`;
 }
 
-/** @type {(benchName: string) => string} */
-export function makeBenchmarkLabel(benchName) {
-	return benchName.replace(/ +/g, "\n");
+/** @type {(version: string) => string} */
+export function makeBenchmarkLabel(version) {
+	return version.replace(/ +/g, "\n");
 }

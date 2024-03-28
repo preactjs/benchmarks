@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   tachometer@0.7.0:
-    hash: 2qqajue4wy2yubonemeaoxflue
+    hash: i73llddni4l6ylc2pnhfdlwcdi
     path: patches/tachometer@0.7.0.patch
   vite@5.0.11:
     hash: svhiouaekrkatuw526sjeontsm
@@ -91,7 +91,7 @@ importers:
         version: 6.8.1
       tachometer:
         specifier: ^0.7.0
-        version: 0.7.0(patch_hash=2qqajue4wy2yubonemeaoxflue)
+        version: 0.7.0(patch_hash=i73llddni4l6ylc2pnhfdlwcdi)
       urlpattern-polyfill:
         specifier: 10.0.0
         version: 10.0.0
@@ -3317,7 +3317,7 @@ packages:
       strip-ansi: 6.0.1
     dev: false
 
-  /tachometer@0.7.0(patch_hash=2qqajue4wy2yubonemeaoxflue):
+  /tachometer@0.7.0(patch_hash=i73llddni4l6ylc2pnhfdlwcdi):
     resolution: {integrity: sha512-163DdzoNkjZlr/m3IpaPMYBOTUc54hzfGSUw7pv9ZoO3OkjDcoGqJGImcrfEDNsw3DD0J/FM5AWjEi2/0W4YZA==}
     hasBin: true
     dependencies:

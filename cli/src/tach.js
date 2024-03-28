@@ -80,7 +80,7 @@ function getMeasurements(benchName) {
  * @param {BenchmarkConfig} benchConfig
  * @returns {(impl: string, depGroup: DependencyGroup) => string}
  */
-function createBenchmarkNameFactory(benchConfig) {
+function createVersionLabelFactory(benchConfig) {
 	const { implementations, depGroups } = benchConfig;
 	const implCount = implementations.length;
 	const depGroupCount = depGroups.length;
@@ -130,12 +130,8 @@ async function generateTachConfig(benchmarkFile, benchConfig) {
 		};
 	}
 
-	const measurement = getMeasurements(basePath);
-	const baseBenchConfig = { measurement, browser: benchConfig.browser };
-
 	const baseUrl = new URL("http://localhost:" + benchConfig.port);
-
-	const getName = createBenchmarkNameFactory(benchConfig);
+	const getLabel = createVersionLabelFactory(benchConfig);
 
 	/** @type {TachBenchmarkConfig["expand"]} */
 	const expand = [];
@@ -143,8 +139,13 @@ async function generateTachConfig(benchmarkFile, benchConfig) {
 	for (let impl of benchConfig.implementations) {
 		for (let depGroup of benchConfig.depGroups) {
 			expand.push({
-				name: getName(impl, depGroup),
 				url: getBenchmarkURL(baseUrl, benchmarkFile, depGroup, impl).toString(),
+				// Create a fake packageVersions object to label in Tachometer results
+				// which variation (aka version) of the benchmark is being run.
+				packageVersions: {
+					label: getLabel(impl, depGroup),
+					dependencies: {},
+				},
 			});
 		}
 	}
@@ -158,7 +159,9 @@ async function generateTachConfig(benchmarkFile, benchConfig) {
 		autoSampleConditions: benchConfig.horizon.split(","),
 		benchmarks: [
 			{
-				...baseBenchConfig,
+				name: baseName,
+				measurement: getMeasurements(basePath),
+				browser: benchConfig.browser,
 				expand,
 			},
 		],

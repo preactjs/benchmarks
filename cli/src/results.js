@@ -53,6 +53,7 @@ function buildBenchmarkResults(tachResults) {
 		benchmarkResult.variations.push({
 			// Remove the measure name that Tachometer adds to the benchmark name.
 			name: tachResult.result.name.replace(/\s*\[.*\]\s*/, ""),
+			version: tachResult.result.version,
 			implementation: implId,
 			depGroupId,
 			dependencies,
@@ -156,7 +157,7 @@ function displayTable(benchmarkResults) {
 		if (benchmarkResult.variations.length > 1) {
 			for (let i = 0; i < benchmarkResult.variations.length; i++) {
 				const variation = benchmarkResult.variations[i];
-				const variationName = makeBenchmarkLabel(variation.name);
+				const variationName = makeBenchmarkLabel(variation.version);
 
 				vsDimensions.push({
 					label: "vs " + variationName,
