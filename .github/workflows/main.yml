@@ -44,3 +44,6 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      - name: Test benchmark
+        run: pnpm bench apps/text-update/text-update.html -i preact -i preact-signals
