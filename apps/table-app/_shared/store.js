@@ -13,6 +13,7 @@ function _random(max) {
  * @property {() => void} runLots
  * @property {() => void} clear
  * @property {() => void} swapRows
+ * @property {(n: number) => void} displace
  */
 
 /** @typedef {{id: number; label: string}} Data */
