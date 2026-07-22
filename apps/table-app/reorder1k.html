@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>reorder rows</title>
+		<meta
+			name="description"
+			content="moving the first 3 of 1,000 rows to the end (3 warmup runs)"
+		/>
+		<style>
+			.preloadicon {
+				display: none;
+			}
+			.glyphicon-remove:before {
+				content: "⨯";
+			}
+		</style>
+	</head>
+	<body>
+		<div id="main"></div>
+		<script type="module">
+			import {
+				measureName,
+				measureMemory,
+				afterFrameAsync,
+				testElementText,
+				markRunStart,
+				markRunEnd,
+			} from "../utils.js";
+			import { render } from "@impl";
+
+			const app = render(document.getElementById("main"));
+			const firstIdSel = "tr:first-child > td:first-child";
+
+			async function init() {
+				app.run();
+
+				await afterFrameAsync();
+				testElementText(firstIdSel, "1");
+
+				for (let i = 0; i < 3; i++) {
+					markRunStart(`warmup-${i}`);
+					app.displace(3);
+					await markRunEnd(`warmup-${i}`);
+
+					await afterFrameAsync();
+					testElementText(firstIdSel, `${3 * (i + 1) + 1}`);
+				}
+			}
+
+			async function run() {
+				markRunStart("final");
+				performance.mark("start");
+				app.displace(3);
+
+				await markRunEnd("final");
+				await afterFrameAsync();
+				testElementText(firstIdSel, "13");
+				performance.mark("stop");
+				performance.measure(measureName, "start", "stop");
+
+				measureMemory();
+			}
+
+			init().then(run);
+		</script>
+	</body>
+</html>

@@ -146,4 +146,9 @@ export class Store {
 			this.data[998] = a;
 		}
 	}
+	/** Move the first `n` rows to the end of the list.
+	 * @param {number} n */
+	displace(n) {
+		this.data = this.data.slice(n).concat(this.data.slice(0, n));
+	}
 }
