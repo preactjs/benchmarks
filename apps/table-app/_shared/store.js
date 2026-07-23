@@ -13,6 +13,7 @@ function _random(max) {
  * @property {() => void} runLots
  * @property {() => void} clear
  * @property {() => void} swapRows
+ * @property {(n: number) => void} displace
  */
 
 /** @typedef {{id: number; label: string}} Data */
@@ -145,5 +146,10 @@ export class Store {
 			this.data[1] = this.data[998];
 			this.data[998] = a;
 		}
+	}
+	/** Move the first `n` rows to the end of the list.
+	 * @param {number} n */
+	displace(n) {
+		this.data = this.data.slice(n).concat(this.data.slice(0, n));
 	}
 }

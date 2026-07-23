@@ -101,6 +101,11 @@ export class Main extends Component {
 		this.state.store.swapRows();
 		this.setState({ store: this.state.store });
 	}
+	/** @param {number} n */
+	displace(n) {
+		this.state.store.displace(n);
+		this.setState({ store: this.state.store });
+	}
 	render() {
 		let rows = this.state.store.data.map((d, i) => {
 			return createElement(Row, {
@@ -143,6 +148,7 @@ export function render(rootDom, props) {
 		runLots: app.runLots.bind(app),
 		clear: app.clear.bind(app),
 		swapRows: app.swapRows.bind(app),
+		displace: app.displace.bind(app),
 	};
 }
 
@@ -163,5 +169,6 @@ export function hydrate(rootDom, props) {
 		runLots: app.runLots.bind(app),
 		clear: app.clear.bind(app),
 		swapRows: app.swapRows.bind(app),
+		displace: app.displace.bind(app),
 	};
 }

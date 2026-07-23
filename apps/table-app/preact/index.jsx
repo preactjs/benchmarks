@@ -98,6 +98,11 @@ function createTableApp(store, rootDom) {
 			store.swapRows();
 			rerender();
 		},
+		/** @param {number} n */
+		displace(n) {
+			store.displace(n);
+			rerender();
+		},
 	};
 
 	rerender = () =>

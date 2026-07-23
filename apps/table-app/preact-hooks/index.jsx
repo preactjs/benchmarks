@@ -87,6 +87,11 @@ function Main({ store: initialStore }) {
 				store.swapRows();
 				forceUpdate();
 			},
+			/** @param {number} n */
+			displace(n) {
+				store.displace(n);
+				forceUpdate();
+			},
 		};
 	}, []);
 
